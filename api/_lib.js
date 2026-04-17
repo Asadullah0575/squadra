@@ -1,21 +1,19 @@
-// api/_lib.js — shared helpers for all API routes
+// api/_lib.js — shared helpers (CommonJS)
 
-import { createClient } from '@libsql/client';
-import { SignJWT, jwtVerify } from 'jose';
-import bcrypt from 'bcryptjs';
+const { createClient } = require('@libsql/client');
+const { SignJWT, jwtVerify } = require('jose');
+const bcrypt = require('bcryptjs');
 
-// ── Turso client ─────────────────────────────────────────
-export function getDB() {
+function getDB() {
   return createClient({
     url:       process.env.TURSO_DATABASE_URL,
     authToken: process.env.TURSO_AUTH_TOKEN,
   });
 }
 
-// ── JWT helpers ──────────────────────────────────────────
 const secret = () => new TextEncoder().encode(process.env.JWT_SECRET);
 
-export async function signToken(payload) {
+async function signToken(payload) {
   return new SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
@@ -23,7 +21,7 @@ export async function signToken(payload) {
     .sign(await secret());
 }
 
-export async function verifyToken(token) {
+async function verifyToken(token) {
   try {
     const { payload } = await jwtVerify(token, await secret());
     return payload;
@@ -32,27 +30,26 @@ export async function verifyToken(token) {
   }
 }
 
-export function getToken(req) {
+function getToken(req) {
   const auth = req.headers['authorization'] || '';
   return auth.replace('Bearer ', '').trim() || null;
 }
 
-// ── Password helpers ─────────────────────────────────────
-export const hashPassword    = (p) => bcrypt.hash(p, 10);
-export const comparePassword = (p, h) => bcrypt.compare(p, h);
+const hashPassword    = (p) => bcrypt.hash(p, 10);
+const comparePassword = (p, h) => bcrypt.compare(p, h);
 
-// ── Response helpers ─────────────────────────────────────
-export function ok(res, data, status = 200) {
+function ok(res, data, status = 200) {
   res.status(status).json({ ok: true, ...data });
 }
 
-export function err(res, message, status = 400) {
+function err(res, message, status = 400) {
   res.status(status).json({ ok: false, error: message });
 }
 
-// ── CORS headers ─────────────────────────────────────────
-export function cors(res) {
+function cors(res) {
   res.setHeader('Access-Control-Allow-Origin',  '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,DELETE,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
 }
+
+module.exports = { getDB, signToken, verifyToken, getToken, hashPassword, comparePassword, ok, err, cors };

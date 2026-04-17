@@ -1,9 +1,9 @@
-// api/auth.js  POST /api/auth?action=signup|signin
+// api/auth.js (CommonJS)
 
-import { getDB, signToken, hashPassword, comparePassword, cors, ok, err } from './_lib.js';
-import { randomUUID } from 'crypto';
+const { getDB, signToken, hashPassword, comparePassword, cors, ok, err } = require('./_lib');
+const { randomUUID } = require('crypto');
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   cors(res);
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return err(res, 'Method not allowed', 405);
@@ -15,7 +15,6 @@ export default async function handler(req, res) {
 
   const db = getDB();
 
-  // ── SIGN UP ──────────────────────────────────────────
   if (action === 'signup') {
     const existing = await db.execute({
       sql:  'SELECT id FROM users WHERE email = ?',
@@ -35,7 +34,6 @@ export default async function handler(req, res) {
     return ok(res, { token, user: { id, email: email.toLowerCase() } }, 201);
   }
 
-  // ── SIGN IN ──────────────────────────────────────────
   if (action === 'signin') {
     const result = await db.execute({
       sql:  'SELECT id, email, password FROM users WHERE email = ?',
@@ -43,7 +41,7 @@ export default async function handler(req, res) {
     });
     if (!result.rows.length) return err(res, 'Invalid email or password', 401);
 
-    const user = result.rows[0];
+    const user  = result.rows[0];
     const match = await comparePassword(password, user.password);
     if (!match) return err(res, 'Invalid email or password', 401);
 
@@ -52,4 +50,4 @@ export default async function handler(req, res) {
   }
 
   return err(res, 'Unknown action');
-}
+};
