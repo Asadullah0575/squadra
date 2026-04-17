@@ -6,8 +6,8 @@ export default async function handler(req, res) {
   cors(res);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // simple guard — remove after first run
-  if (req.query.secret !== process.env.JWT_SECRET?.slice(0, 8)) {
+  // simple one-time password — change this after running
+  if (req.query.secret !== 'squadra-init-2026') {
     return err(res, 'Forbidden', 403);
   }
 
