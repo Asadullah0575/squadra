@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Squadra — Find Your Team</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#080809;--bg2:#0f0f11;--bg3:#161619;--bg4:#1e1e22;
+    --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);--border3:rgba(255,255,255,0.16);
+    --white:#f4f2ee;--muted:#7a7870;--faint:#3a3835;
+    --accent:#d4f53c;--accent2:#c2e030;--accent-dim:rgba(212,245,60,0.1);
+    --teal:#36c9b0;--blue:#5b9cf6;--purple:#a78bfa;--red:#f05050;
+    --r:4px;--r2:8px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  body::after{content:'';position:fixed;inset:0;z-index:999;pointer-events:none;background-image:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px)}
+  .hidden{display:none!important}
+
+  /* NAV */
+  nav{position:sticky;top:0;z-index:100;background:rgba(8,8,9,0.94);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 1.75rem}
+  .logo{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:15px;letter-spacing:-0.01em;color:var(--white);display:flex;align-items:center;gap:10px}
+  .logo-mark{width:22px;height:22px;border:1.5px solid var(--accent);border-radius:4px;display:flex;align-items:center;justify-content:center;background:var(--accent-dim)}
+  .logo-name span{color:var(--accent)}
+  .nav-pill{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--teal);background:rgba(54,201,176,0.08);border:1px solid rgba(54,201,176,0.18);border-radius:3px;padding:2px 7px}
+  .nav-right{display:flex;align-items:center;gap:8px}
+  .nav-email{font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .btn-outline{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.04em;color:var(--muted);background:transparent;border:1px solid var(--border2);border-radius:var(--r);padding:6px 14px;cursor:pointer;transition:color .12s,border-color .12s}
+  .btn-outline:hover{color:var(--white);border-color:var(--border3)}
+  .btn-primary{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:0.04em;color:#0a0a0a;background:var(--accent);border:none;border-radius:var(--r);padding:6px 14px;cursor:pointer;transition:background .12s}
+  .btn-primary:hover{background:var(--accent2)}
+
+  /* HEADER */
+  .header{border-bottom:1px solid var(--border);padding:3rem 1.75rem 2rem;display:grid;grid-template-columns:1fr auto;align-items:end;gap:2rem;max-width:1300px;margin:0 auto}
+  .header-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .header-eyebrow::before{content:'';width:16px;height:1px;background:var(--faint)}
+  .header h1{font-family:'IBM Plex Sans',sans-serif;font-weight:600;font-size:clamp(1.9rem,3.5vw,2.8rem);line-height:1.08;letter-spacing:-0.03em;color:var(--white);margin-bottom:10px}
+  .header h1 mark{background:none;color:var(--accent)}
+  .header-sub{font-size:14px;color:var(--muted);max-width:460px;line-height:1.6}
+  .stats-cluster{display:flex;gap:0;border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;flex-shrink:0}
+  .stat-cell{padding:14px 20px;border-right:1px solid var(--border);text-align:center;min-width:90px}
+  .stat-cell:last-child{border-right:none}
+  .stat-n{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600;color:var(--accent);line-height:1;margin-bottom:3px}
+  .stat-l{font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--faint)}
+
+  /* LAYOUT */
+  .layout{max-width:1300px;margin:0 auto;padding:1.5rem 1.75rem 4rem;display:grid;grid-template-columns:220px 1fr;gap:1.5rem}
+  .sidebar{position:sticky;top:68px;height:fit-content}
+  .sb-section{border:1px solid var(--border);border-radius:var(--r2);padding:1rem;margin-bottom:1px;background:var(--bg2)}
+  .sb-section+.sb-section{border-top-left-radius:0;border-top-right-radius:0}
+  .sb-section:first-child{border-bottom-left-radius:0;border-bottom-right-radius:0}
+  .sb-section:not(:first-child):not(:last-child){border-radius:0}
+  .sb-section:last-child{border-top-left-radius:0;border-top-right-radius:0}
+  .sb-label{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--faint);margin-bottom:10px}
+  .search-wrap{position:relative}
+  .search-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:7px 10px 7px 30px;color:var(--white);font-family:'IBM Plex Sans',sans-serif;font-size:12px;outline:none;transition:border-color .12s}
+  .search-input:focus{border-color:rgba(212,245,60,0.3)}
+  .search-input::placeholder{color:var(--faint)}
+  .search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--faint)}
+  .filter-list{display:flex;flex-direction:column;gap:2px}
+  .filter-item{display:flex;align-items:center;justify-content:space-between;padding:6px 8px;border-radius:var(--r);border:1px solid transparent;font-size:12px;color:var(--muted);background:transparent;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;transition:all .1s;text-align:left}
+  .filter-item:hover{background:var(--bg3);color:var(--white)}
+  .filter-item.active{background:var(--accent-dim);border-color:rgba(212,245,60,0.15);color:var(--accent)}
+  .post-block{border:1px solid var(--border);border-radius:var(--r2);padding:1rem;background:var(--bg2);margin-top:1rem}
+  .post-block p{font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5}
+  .post-block button{width:100%;padding:8px;background:var(--accent);border:none;border-radius:var(--r);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:0.04em;color:#0a0a0a;cursor:pointer;transition:background .12s}
+  .post-block button:hover{background:var(--accent2)}
+
+  /* TOOLBAR */
+  .toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+  .toolbar-left{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--faint)}
+  .toolbar-left strong{color:var(--muted)}
+  .sort-select{font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);color:var(--muted);padding:5px 10px;outline:none;cursor:pointer}
+
+  /* GRID */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden}
+  .card{background:var(--bg2);padding:1.2rem;transition:background .12s;position:relative}
+  .card:hover{background:var(--bg3)}
+  .card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .2s ease}
+  .card:hover::before{transform:scaleX(1)}
+  .card-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px}
+  .avi{width:38px;height:38px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px;flex-shrink:0;letter-spacing:-0.02em}
+  .card-info{flex:1;min-width:0}
+  .card-name{font-size:13px;font-weight:600;color:var(--white);letter-spacing:-0.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:1px}
+  .card-role{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .online-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);flex-shrink:0;margin-top:5px;box-shadow:0 0 5px var(--teal)}
+  .online-dot.off{background:var(--faint);box-shadow:none}
+  .card-bio{font-size:12px;color:var(--muted);line-height:1.55;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .card-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
+  .tag{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;padding:2px 6px;border-radius:3px;letter-spacing:0.01em}
+  .tag-dev{background:rgba(91,156,246,0.1);color:#7ab0f8;border:1px solid rgba(91,156,246,0.15)}
+  .tag-sol{background:rgba(212,245,60,0.08);color:#c2e030;border:1px solid rgba(212,245,60,0.12)}
+  .tag-design{background:rgba(167,139,250,0.1);color:#b89ffa;border:1px solid rgba(167,139,250,0.15)}
+  .tag-biz{background:rgba(54,201,176,0.1);color:#4ed4ba;border:1px solid rgba(54,201,176,0.15)}
+  .tag-ai{background:rgba(240,80,80,0.1);color:#f08080;border:1px solid rgba(240,80,80,0.15)}
+  .card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border)}
+  .card-meta-row{display:flex;align-items:center;gap:10px}
+  .meta-chip{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;padding:2px 6px;border-radius:3px;border:1px solid var(--border);color:var(--faint)}
+  .track-chip{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:2px 7px;border-radius:3px}
+  .need-row{font-size:10px;color:var(--faint);margin-bottom:10px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+  .need-tag{font-family:'IBM Plex Mono',monospace;font-size:9px;padding:1px 5px;border-radius:3px;border:1px solid var(--border);color:var(--muted);background:var(--bg3)}
+  .invite-btn{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0.04em;padding:4px 10px;border-radius:var(--r);border:1px solid rgba(212,245,60,0.25);background:var(--accent-dim);color:var(--accent);cursor:pointer;transition:all .12s;text-transform:uppercase}
+  .invite-btn:hover{background:rgba(212,245,60,0.16)}
+  .invite-btn.sent{color:var(--teal);background:rgba(54,201,176,0.08);border-color:rgba(54,201,176,0.2);cursor:default}
+  .invite-btn:disabled{opacity:.4;cursor:default}
+  .del-btn{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0.04em;padding:4px 10px;border-radius:var(--r);border:1px solid rgba(240,80,80,0.25);background:rgba(240,80,80,0.08);color:#f08080;cursor:pointer;transition:all .12s;text-transform:uppercase}
+  .del-btn:hover{background:rgba(240,80,80,0.14)}
+
+  /* SKELETON */
+  .skeleton{background:var(--bg2);padding:1.2rem}
+  .skel-line{height:12px;border-radius:3px;background:var(--bg3);margin-bottom:8px;animation:shimmer 1.4s infinite}
+  @keyframes shimmer{0%,100%{opacity:.4}50%{opacity:.8}}
+
+  /* MODALS */
+  .overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:1.5rem}
+  .overlay.open{display:flex}
+  .modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r2);padding:1.75rem;width:100%;max-width:460px;max-height:90vh;overflow-y:auto;animation:pop .18s ease}
+  @keyframes pop{from{transform:scale(0.97) translateY(8px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+  .modal-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.25rem}
+  .modal-title{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:16px;letter-spacing:-0.01em;color:var(--white);margin-bottom:2px}
+  .modal-sub{font-size:12px;color:var(--muted)}
+  .close-btn{width:28px;height:28px;border:1px solid var(--border);border-radius:var(--r);background:transparent;color:var(--muted);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .1s;flex-shrink:0}
+  .close-btn:hover{color:var(--white);border-color:var(--border2)}
+  .divider{height:1px;background:var(--border);margin:1.25rem 0}
+  .field{margin-bottom:14px}
+  .field-label{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--faint);margin-bottom:5px;display:flex;align-items:center;gap:6px}
+  .field-label .req{color:var(--accent)}
+  .f-input,.f-select,.f-textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:8px 10px;color:var(--white);font-family:'IBM Plex Sans',sans-serif;font-size:13px;outline:none;transition:border-color .12s}
+  .f-input:focus,.f-select:focus,.f-textarea:focus{border-color:rgba(212,245,60,0.35);background:var(--bg4)}
+  .f-input::placeholder,.f-textarea::placeholder{color:var(--faint)}
+  .f-textarea{min-height:72px;resize:vertical}
+  .f-select option{background:var(--bg3)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .pick-grid{display:flex;flex-wrap:wrap;gap:5px}
+  .pick-btn{font-family:'IBM Plex Sans',sans-serif;font-size:11px;padding:4px 9px;border-radius:3px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .1s}
+  .pick-btn:hover{border-color:var(--border2);color:var(--white)}
+  .pick-btn.on{background:var(--accent-dim);border-color:rgba(212,245,60,0.25);color:var(--accent)}
+  .modal-footer{display:flex;gap:8px;margin-top:1.25rem}
+  .btn-cancel{flex:1;padding:9px;background:transparent;border:1px solid var(--border);border-radius:var(--r);color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:11px;cursor:pointer;transition:all .1s}
+  .btn-cancel:hover{border-color:var(--border2);color:var(--white)}
+  .btn-go{flex:2;padding:9px;background:var(--accent);border:none;border-radius:var(--r);color:#0a0a0a;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:0.04em;cursor:pointer;transition:background .1s}
+  .btn-go:hover{background:var(--accent2)}
+  .btn-go:disabled,.btn-cancel:disabled{opacity:.5;cursor:not-allowed}
+  .form-error{font-size:11px;color:#f08080;margin-top:6px;font-family:'IBM Plex Mono',monospace}
+
+  /* EMPTY */
+  .empty{padding:4rem 2rem;text-align:center;color:var(--faint);grid-column:1/-1;background:var(--bg2);font-size:12px}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:1.25rem;right:1.25rem;z-index:300;background:var(--bg3);border:1px solid rgba(54,201,176,0.25);border-radius:var(--r);padding:9px 14px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--teal);opacity:0;transform:translateY(8px);transition:all .18s;pointer-events:none}
+  .toast.show{opacity:1;transform:translateY(0)}
+  .toast.err{border-color:rgba(240,80,80,0.3);color:#f08080}
+
+  @media(max-width:740px){.layout{grid-template-columns:1fr}.sidebar{position:static}.header{grid-template-columns:1fr}.stats-cluster{display:none}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">
+    <div class="logo-mark">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+        <path d="M2 2h3.5v3.5H2V2zm4.5 0H10v3.5H6.5V2zM2 6.5h3.5V10H2V6.5zm4.5 0H10V10H6.5V6.5z" fill="#d4f53c"/>
+      </svg>
+    </div>
+    <span class="logo-name">SQU<span>ADRA</span></span>
+  </div>
+  <span class="nav-pill">LIVE</span>
+  <div class="nav-right">
+    <span class="nav-email hidden" id="userEmail"></span>
+    <button class="btn-outline" id="signinBtn" onclick="openAuthModal('signin')">Sign in</button>
+    <button class="btn-outline hidden" id="signoutBtn" onclick="handleSignOut()">Sign out</button>
+    <button class="btn-primary hidden" id="postBtn" onclick="openPostModal()">+ Post Profile</button>
+  </div>
+</nav>
+
+<div class="header">
+  <div>
+    <div class="header-eyebrow">Team matching platform</div>
+    <h1>Find your <mark>founding team.</mark><br>Build something real.</h1>
+    <p class="header-sub">Connect with builders, designers, and operators across every timezone. Post your profile. Form your squad.</p>
+  </div>
+  <div class="stats-cluster">
+    <div class="stat-cell"><div class="stat-n" id="sBuilders">—</div><div class="stat-l">Builders</div></div>
+    <div class="stat-cell"><div class="stat-n" id="sCountries">—</div><div class="stat-l">Countries</div></div>
+    <div class="stat-cell"><div class="stat-n">6</div><div class="stat-l">Tracks</div></div>
+  </div>
+</div>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sb-section">
+      <div class="sb-label">Search</div>
+      <div class="search-wrap">
+        <svg class="search-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="search-input" id="searchInput" type="text" placeholder="Name, skill, role..." oninput="render()">
+      </div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Track</div>
+      <div class="filter-list" id="trackList">
+        <button class="filter-item active" onclick="setF('track','all',this)">All tracks</button>
+        <button class="filter-item" onclick="setF('track','DeFi',this)">DeFi</button>
+        <button class="filter-item" onclick="setF('track','Infrastructure',this)">Infrastructure</button>
+        <button class="filter-item" onclick="setF('track','Consumer',this)">Consumer</button>
+        <button class="filter-item" onclick="setF('track','AI',this)">AI / Agents</button>
+        <button class="filter-item" onclick="setF('track','Gaming',this)">Gaming</button>
+        <button class="filter-item" onclick="setF('track','Privacy',this)">Privacy</button>
+      </div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Role needed</div>
+      <div class="filter-list" id="roleList">
+        <button class="filter-item active" onclick="setF('role','all',this)">Any role</button>
+        <button class="filter-item" onclick="setF('role','Developer',this)">Developer</button>
+        <button class="filter-item" onclick="setF('role','Designer',this)">Designer</button>
+        <button class="filter-item" onclick="setF('role','Business',this)">Business</button>
+        <button class="filter-item" onclick="setF('role','AI/ML',this)">AI / ML</button>
+      </div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Timezone</div>
+      <div class="filter-list" id="tzList">
+        <button class="filter-item active" onclick="setF('tz','all',this)">Worldwide</button>
+        <button class="filter-item" onclick="setF('tz','Americas',this)">Americas</button>
+        <button class="filter-item" onclick="setF('tz','Europe / Africa',this)">Europe / Africa</button>
+        <button class="filter-item" onclick="setF('tz','Asia / Pacific',this)">Asia / Pacific</button>
+      </div>
+    </div>
+    <div class="post-block">
+      <p>Looking for a team? Post your profile and let builders find you.</p>
+      <button onclick="currentUser ? openPostModal() : openAuthModal('signin')">POST YOUR PROFILE →</button>
+    </div>
+  </aside>
+
+  <div>
+    <div class="toolbar">
+      <div class="toolbar-left">Showing <strong id="countLabel">— builders</strong></div>
+      <select class="sort-select" id="sortSel" onchange="render()">
+        <option value="recent">RECENT</option>
+        <option value="active">ACTIVE FIRST</option>
+        <option value="az">A → Z</option>
+      </select>
+    </div>
+    <div class="grid" id="grid">
+      <div class="skeleton"><div class="skel-line" style="width:60%"></div><div class="skel-line" style="width:40%"></div><div class="skel-line" style="width:80%;margin-top:12px"></div></div>
+      <div class="skeleton"><div class="skel-line" style="width:50%"></div><div class="skel-line" style="width:35%"></div><div class="skel-line" style="width:75%;margin-top:12px"></div></div>
+      <div class="skeleton"><div class="skel-line" style="width:65%"></div><div class="skel-line" style="width:45%"></div><div class="skel-line" style="width:70%;margin-top:12px"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="overlay" id="authOverlay">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-head">
+      <div><div class="modal-title" id="authTitle">Sign in</div><div class="modal-sub" id="authSub">Welcome back to Squadra</div></div>
+      <button class="close-btn" onclick="closeAuthModal()">✕</button>
+    </div>
+    <div class="field"><div class="field-label">Email <span class="req">*</span></div><input class="f-input" id="authEmail" type="email" placeholder="you@example.com"></div>
+    <div class="field"><div class="field-label">Password <span class="req">*</span></div><input class="f-input" id="authPassword" type="password" placeholder="••••••••"></div>
+    <div class="form-error hidden" id="authError"></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" id="authToggleBtn" onclick="toggleAuthMode()">Create account</button>
+      <button class="btn-go" id="authSubmitBtn" onclick="handleAuth()">SIGN IN →</button>
+    </div>
+  </div>
+</div>
+
+<!-- POST MODAL -->
+<div class="overlay" id="postOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div><div class="modal-title">Post your profile</div><div class="modal-sub">Let other builders find you</div></div>
+      <button class="close-btn" onclick="closePostModal()">✕</button>
+    </div>
+    <div class="row2">
+      <div class="field"><div class="field-label">Name <span class="req">*</span></div><input class="f-input" id="pName" type="text" placeholder="Your full name"></div>
+      <div class="field"><div class="field-label">Role <span class="req">*</span></div><input class="f-input" id="pRole" type="text" placeholder="e.g. Rust Developer"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><div class="field-label">Track <span class="req">*</span></div>
+        <select class="f-select" id="pTrack"><option value="">Select...</option><option>DeFi</option><option>Infrastructure</option><option>Consumer</option><option>AI</option><option>Gaming</option><option>Privacy</option></select>
+      </div>
+      <div class="field"><div class="field-label">Timezone <span class="req">*</span></div>
+        <select class="f-select" id="pTz"><option value="">Select...</option><option>Americas</option><option>Europe / Africa</option><option>Asia / Pacific</option></select>
+      </div>
+    </div>
+    <div class="field"><div class="field-label">Bio <span class="req">*</span></div><textarea class="f-textarea" id="pBio" placeholder="What are you building? What's your background?"></textarea></div>
+    <div class="divider"></div>
+    <div class="field"><div class="field-label">Your skills</div>
+      <div class="pick-grid">
+        <button class="pick-btn" onclick="tog(this,'Rust')">Rust</button>
+        <button class="pick-btn" onclick="tog(this,'TypeScript')">TypeScript</button>
+        <button class="pick-btn" onclick="tog(this,'React')">React</button>
+        <button class="pick-btn" onclick="tog(this,'Solana')">Solana</button>
+        <button class="pick-btn" onclick="tog(this,'Smart Contracts')">Smart Contracts</button>
+        <button class="pick-btn" onclick="tog(this,'AI/ML')">AI/ML</button>
+        <button class="pick-btn" onclick="tog(this,'UI/UX')">UI/UX</button>
+        <button class="pick-btn" onclick="tog(this,'Product')">Product</button>
+        <button class="pick-btn" onclick="tog(this,'Go-to-market')">Go-to-market</button>
+        <button class="pick-btn" onclick="tog(this,'DeFi Protocols')">DeFi Protocols</button>
+        <button class="pick-btn" onclick="tog(this,'Python')">Python</button>
+        <button class="pick-btn" onclick="tog(this,'DevOps')">DevOps</button>
+        <button class="pick-btn" onclick="tog(this,'Anchor')">Anchor</button>
+        <button class="pick-btn" onclick="tog(this,'Go')">Go</button>
+      </div>
+    </div>
+    <div class="field" style="margin-top:12px"><div class="field-label">Looking for</div>
+      <div class="pick-grid">
+        <button class="pick-btn" onclick="togL(this,'Developer')">Developer</button>
+        <button class="pick-btn" onclick="togL(this,'Designer')">Designer</button>
+        <button class="pick-btn" onclick="togL(this,'Business')">Business</button>
+        <button class="pick-btn" onclick="togL(this,'AI/ML Engineer')">AI/ML Engineer</button>
+        <button class="pick-btn" onclick="togL(this,'Solana Expert')">Solana Expert</button>
+      </div>
+    </div>
+    <div class="form-error hidden" id="postError"></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closePostModal()">CANCEL</button>
+      <button class="btn-go" id="postSubmitBtn" onclick="submitProfile()">POST TO SQUADRA →</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { apiSignUp, apiSignIn, apiSignOut, getCurrentUser,
+         apiGetProfiles, apiPostProfile, apiDeleteProfile,
+         apiGetInvites, apiSendInvite } from '/js/api.js';
+
+// ── constants ──────────────────────────────────────────
+const AVI = [
+  {bg:'rgba(91,156,246,0.15)',color:'#7ab0f8'},
+  {bg:'rgba(212,245,60,0.1)',color:'#c2e030'},
+  {bg:'rgba(54,201,176,0.12)',color:'#4ed4ba'},
+  {bg:'rgba(167,139,250,0.12)',color:'#b89ffa'},
+  {bg:'rgba(240,128,80,0.12)',color:'#f0a080'},
+];
+const TS = {
+  DeFi:'background:rgba(54,201,176,0.1);color:#4ed4ba;border:1px solid rgba(54,201,176,0.15)',
+  Infrastructure:'background:rgba(91,156,246,0.1);color:#7ab0f8;border:1px solid rgba(91,156,246,0.15)',
+  Consumer:'background:rgba(212,245,60,0.08);color:#c2e030;border:1px solid rgba(212,245,60,0.12)',
+  AI:'background:rgba(167,139,250,0.1);color:#b89ffa;border:1px solid rgba(167,139,250,0.15)',
+  Gaming:'background:rgba(240,128,80,0.1);color:#f0a080;border:1px solid rgba(240,128,80,0.15)',
+  Privacy:'background:rgba(255,255,255,0.05);color:#7a7870;border:1px solid rgba(255,255,255,0.08)',
+};
+const SC = {Rust:'dev',TypeScript:'dev',React:'dev',Go:'dev',Python:'dev',DevOps:'dev','Smart Contracts':'sol',Solana:'sol','DeFi Protocols':'sol',Anchor:'sol','UI/UX':'design',Figma:'design',Product:'biz','Go-to-market':'biz',BD:'biz',Marketing:'biz','AI/ML':'ai',LLMs:'ai',Agents:'ai'};
+
+// ── state ──────────────────────────────────────────────
+let allProfiles=[], myInvites=[], selSkills=[], selLooking=[];
+let F={track:'all',role:'all',tz:'all'}, authMode='signin';
+window.currentUser = getCurrentUser();
+
+// ── helpers ────────────────────────────────────────────
+const ini = n => n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+const aviColor = id => { let h=0; for(let c of id) h=(h*31+c.charCodeAt(0))&0xffffffff; return AVI[Math.abs(h)%AVI.length]; };
+const sc = s => SC[s]||'biz';
+const ts = t => TS[t]||'background:rgba(255,255,255,0.05);color:#7a7870;border:1px solid rgba(255,255,255,0.08)';
+
+// ── card ───────────────────────────────────────────────
+function cardHTML(b) {
+  const av=aviColor(b.id), isOwn=window.currentUser?.id===b.user_id, invited=myInvites.includes(b.id);
+  const tzS=(b.timezone||'').replace('Europe / Africa','EU/AF').replace('Asia / Pacific','AS/PAC');
+  return `<div class="card">
+    <div class="card-head">
+      <div class="avi" style="background:${av.bg};color:${av.color}">${ini(b.name)}</div>
+      <div class="card-info"><div class="card-name">${b.name}</div><div class="card-role">${b.role}</div></div>
+      <div class="online-dot ${b.is_active?'':'off'}"></div>
+    </div>
+    <div class="need-row">needs: ${(b.looking_for||[]).map(r=>`<span class="need-tag">${r}</span>`).join('')}</div>
+    <p class="card-bio">${b.bio}</p>
+    <div class="card-tags">${(b.skills||[]).map(s=>`<span class="tag tag-${sc(s)}">${s}</span>`).join('')}</div>
+    <div class="card-footer">
+      <div class="card-meta-row">
+        <span class="meta-chip">${tzS}</span>
+        <span class="track-chip" style="${ts(b.track)}">${(b.track||'').toUpperCase()}</span>
+      </div>
+      ${isOwn
+        ? `<button class="del-btn" onclick="window.deleteMyProfile('${b.id}')">DELETE</button>`
+        : `<button class="invite-btn ${invited?'sent':''}" id="ib-${b.id}" onclick="window.handleInvite('${b.id}',this)">${invited?'✓ SENT':'INVITE'}</button>`}
+    </div>
+  </div>`;
+}
+
+// ── render ─────────────────────────────────────────────
+function render() {
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  const sort=document.getElementById('sortSel').value;
+  let list=allProfiles.filter(b=>{
+    const mq=!q||b.name.toLowerCase().includes(q)||b.role.toLowerCase().includes(q)||(b.skills||[]).some(s=>s.toLowerCase().includes(q))||b.bio.toLowerCase().includes(q);
+    return mq&&(F.track==='all'||b.track===F.track)&&(F.role==='all'||(b.looking_for||[]).includes(F.role))&&(F.tz==='all'||b.timezone===F.tz);
+  });
+  if(sort==='active') list.sort((a,b)=>b.is_active-a.is_active);
+  else if(sort==='az') list.sort((a,b)=>a.name.localeCompare(b.name));
+  const g=document.getElementById('grid');
+  g.innerHTML=list.length?list.map(cardHTML).join(''):`<div class="empty"><p style="font-family:'IBM Plex Mono',monospace;font-size:11px;margin-bottom:8px">NO BUILDERS MATCH</p><p>Try adjusting your filters</p></div>`;
+  document.getElementById('countLabel').textContent=`${list.length} builder${list.length!==1?'s':''}`;
+}
+window.render = render;
+
+window.setF = (type,val,el) => {
+  F[type]=val;
+  const map={track:'trackList',role:'roleList',tz:'tzList'};
+  document.querySelectorAll(`#${map[type]} .filter-item`).forEach(i=>i.classList.remove('active'));
+  el.classList.add('active'); render();
+};
+
+// ── load ───────────────────────────────────────────────
+async function load() {
+  try {
+    [allProfiles, myInvites] = await Promise.all([apiGetProfiles(), window.currentUser ? apiGetInvites() : Promise.resolve([])]);
+    const countries=new Set(allProfiles.map(p=>p.country).filter(Boolean));
+    document.getElementById('sBuilders').textContent=allProfiles.length;
+    document.getElementById('sCountries').textContent=countries.size;
+    render();
+  } catch(e) {
+    document.getElementById('grid').innerHTML=`<div class="empty"><p>Failed to load profiles — check your API config.</p></div>`;
+  }
+}
+
+// ── invite ─────────────────────────────────────────────
+window.handleInvite = async (profileId, btn) => {
+  if(!window.currentUser){openAuthModal('signin');return}
+  if(btn.classList.contains('sent')) return;
+  btn.disabled=true;
+  try {
+    await apiSendInvite(profileId);
+    myInvites.push(profileId); btn.classList.add('sent'); btn.textContent='✓ SENT';
+    const p=allProfiles.find(x=>x.id===profileId);
+    toast(`Invite sent to ${p?.name||'builder'}`);
+  } catch(e) { toast(e.message,true); btn.disabled=false; }
+};
+
+window.deleteMyProfile = async (id) => {
+  if(!confirm('Delete your profile?')) return;
+  try {
+    await apiDeleteProfile(id);
+    allProfiles=allProfiles.filter(p=>p.id!==id);
+    document.getElementById('sBuilders').textContent=allProfiles.length;
+    render(); toast('Profile deleted');
+  } catch(e) { toast(e.message,true); }
+};
+
+// ── nav ────────────────────────────────────────────────
+function updateNav() {
+  const u=window.currentUser;
+  document.getElementById('signinBtn').classList.toggle('hidden',!!u);
+  document.getElementById('signoutBtn').classList.toggle('hidden',!u);
+  document.getElementById('postBtn').classList.toggle('hidden',!u);
+  document.getElementById('userEmail').classList.toggle('hidden',!u);
+  if(u) document.getElementById('userEmail').textContent=u.email;
+}
+
+window.handleSignOut = () => { apiSignOut(); window.currentUser=null; myInvites=[]; updateNav(); render(); toast('Signed out'); };
+
+// ── auth modal ─────────────────────────────────────────
+window.openAuthModal = (mode='signin') => { authMode=mode; updateAuthModal(); document.getElementById('authOverlay').classList.add('open'); };
+window.closeAuthModal = () => document.getElementById('authOverlay').classList.remove('open');
+window.toggleAuthMode = () => { authMode=authMode==='signin'?'signup':'signin'; updateAuthModal(); };
+
+function updateAuthModal() {
+  const s=authMode==='signin';
+  document.getElementById('authTitle').textContent=s?'Sign in':'Create account';
+  document.getElementById('authSub').textContent=s?'Welcome back to Squadra':'Join Squadra and find your team';
+  document.getElementById('authToggleBtn').textContent=s?'Create account':'Sign in instead';
+  document.getElementById('authSubmitBtn').textContent=s?'SIGN IN →':'CREATE ACCOUNT →';
+  document.getElementById('authError').classList.add('hidden');
+}
+
+window.handleAuth = async () => {
+  const email=document.getElementById('authEmail').value.trim();
+  const password=document.getElementById('authPassword').value;
+  const errEl=document.getElementById('authError');
+  const btn=document.getElementById('authSubmitBtn');
+  errEl.classList.add('hidden'); btn.disabled=true;
+  btn.textContent=authMode==='signin'?'SIGNING IN...':'CREATING...';
+  try {
+    window.currentUser = authMode==='signin' ? await apiSignIn(email,password) : await apiSignUp(email,password);
+    updateNav(); closeAuthModal();
+    myInvites = await apiGetInvites();
+    render(); toast(authMode==='signin'?'Welcome back!':'Account created!');
+  } catch(e) { errEl.textContent=e.message; errEl.classList.remove('hidden'); }
+  finally { btn.disabled=false; updateAuthModal(); }
+};
+
+// ── post modal ─────────────────────────────────────────
+window.openPostModal = () => { if(!window.currentUser){openAuthModal('signin');return} document.getElementById('postOverlay').classList.add('open'); };
+window.closePostModal = () => document.getElementById('postOverlay').classList.remove('open');
+
+window.tog  = (btn,s) => { btn.classList.toggle('on'); selSkills=btn.classList.contains('on')?[...selSkills,s]:selSkills.filter(x=>x!==s); };
+window.togL = (btn,s) => { btn.classList.toggle('on'); selLooking=btn.classList.contains('on')?[...selLooking,s]:selLooking.filter(x=>x!==s); };
+
+window.submitProfile = async () => {
+  const name=document.getElementById('pName').value.trim();
+  const role=document.getElementById('pRole').value.trim();
+  const track=document.getElementById('pTrack').value;
+  const tz=document.getElementById('pTz').value;
+  const bio=document.getElementById('pBio').value.trim();
+  const errEl=document.getElementById('postError');
+  const btn=document.getElementById('postSubmitBtn');
+  errEl.classList.add('hidden');
+  if(!name||!role||!track||!tz||!bio){errEl.textContent='Fill in all required fields';errEl.classList.remove('hidden');return}
+  if(!selSkills.length){errEl.textContent='Select at least one skill';errEl.classList.remove('hidden');return}
+  btn.disabled=true; btn.textContent='POSTING...';
+  try {
+    const p=await apiPostProfile({name,role,track,timezone:tz,bio,skills:[...selSkills],lookingFor:selLooking.length?[...selLooking]:['Developer']});
+    allProfiles.unshift(p);
+    document.getElementById('sBuilders').textContent=allProfiles.length;
+    closePostModal(); render(); toast(`Profile posted — welcome, ${name.split(' ')[0]}.`);
+    ['pName','pRole','pBio'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('pTrack').value=''; document.getElementById('pTz').value='';
+    selSkills=[]; selLooking=[]; document.querySelectorAll('.pick-btn').forEach(b=>b.classList.remove('on'));
+  } catch(e) { errEl.textContent=e.message; errEl.classList.remove('hidden'); }
+  finally { btn.disabled=false; btn.textContent='POST TO SQUADRA →'; }
+};
+
+// ── overlay close on backdrop ─────────────────────────
+['authOverlay','postOverlay'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',e=>{if(e.target===document.getElementById(id)) document.getElementById(id).classList.remove('open');});
+});
+
+// ── toast ──────────────────────────────────────────────
+window.toast = (msg,isErr=false) => {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show'+(isErr?' err':'');
+  setTimeout(()=>t.className='toast',3200);
+};
+
+// ── init ───────────────────────────────────────────────
+updateNav();
+load();
+</script>
+</body>
+</html>
