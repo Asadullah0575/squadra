@@ -2,61 +2,32 @@
 
 > **Find your founding team. Build something real.**
 
-Squadra is an open-source team-matching platform for builders, designers, and operators. Post your profile, filter by track, timezone, and role, and connect with the right people to form your squad — for hackathons, startups, or any project.
+Squadra is an open-source team-matching platform for builders, designers, and operators. Post your profile, filter by track, timezone, and role, and connect with the right people — for hackathons, startups, or any project.
 
-![Squadra](https://img.shields.io/badge/status-live-brightgreen?style=flat-square) ![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square) ![HTML](https://img.shields.io/badge/built%20with-HTML%2FCSS%2FJS-f0db4f?style=flat-square)
+![Status](https://img.shields.io/badge/status-live-brightgreen?style=flat-square) ![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square) ![Stack](https://img.shields.io/badge/stack-Turso%20%2B%20Vercel-4f46e5?style=flat-square)
+
+---
+
+## Tech Stack
+
+| Layer    | Tool |
+|----------|------|
+| Frontend | Vanilla HTML / CSS / JS (ES Modules) |
+| API      | Vercel Serverless Functions |
+| Database | Turso (SQLite at the edge) |
+| Auth     | JWT (jose) + bcrypt |
+| Hosting  | Vercel |
 
 ---
 
 ## Features
 
-- **Browse builders** — explore profiles filtered by track, role needed, and timezone
-- **Post your profile** — list your skills, what you're building, and who you're looking for
-- **Invite teammates** — send a one-click invite directly from any builder card
-- **Live search** — instant filtering by name, skill, or role
-- **Online status** — see who's active right now
-- **Zero dependencies** — pure HTML, CSS, and vanilla JavaScript. No framework, no build step.
-
----
-
-## Preview
-
-| Browse & Filter | Post Profile |
-|---|---|
-| Filter by track, timezone, and role needed | Post your skills and what you're looking for |
-
----
-
-## Getting Started
-
-### Option 1 — Open directly
-
-Since Squadra is a single HTML file with no dependencies, you can simply open it in your browser:
-
-```bash
-git clone https://github.com/Asadullah0575/squadra.git
-cd squadra
-open squadra.html   # macOS
-# or double-click squadra.html on Windows/Linux
-```
-
-### Option 2 — Serve locally
-
-```bash
-# Python
-python3 -m http.server 8080
-
-# Node.js (npx)
-npx serve .
-```
-
-Then visit `http://localhost:8080`.
-
-### Option 3 — Deploy to GitHub Pages
-
-1. Go to your repo → **Settings** → **Pages**
-2. Set source to `main` branch, `/ (root)`
-3. Your site will be live at `https://asadullah0575.github.io/squadra`
+- Browse and filter builders by track, role, and timezone
+- Email + password sign up / sign in
+- Post your profile with skills and who you're looking for
+- Send invites — persisted to your account
+- Delete your own profile
+- Live search across names, roles, and skills
 
 ---
 
@@ -64,51 +35,156 @@ Then visit `http://localhost:8080`.
 
 ```
 squadra/
-└── squadra.html     # Entire app — markup, styles, and logic in one file
+├── api/
+│   ├── _lib.js        # Shared DB client, JWT, bcrypt helpers
+│   ├── auth.js        # POST /api/auth?action=signup|signin
+│   ├── profiles.js    # GET / POST / DELETE /api/profiles
+│   ├── invites.js     # GET / POST /api/invites
+│   └── init.js        # One-time DB table creation
+├── js/
+│   └── api.js         # Frontend fetch wrapper
+├── public/
+│   └── index.html     # Main app UI
+├── package.json
+├── vercel.json
 └── README.md
 ```
 
 ---
 
-## Customisation
+## Getting Started
 
-All configuration lives inside `squadra.html`. Key areas to edit:
+### 1. Clone the repo
 
-| What | Where in the file |
-|---|---|
-| Seed builder profiles | `let DB = [...]` in the `<script>` block |
-| Hackathon tracks | `<select id="pTrack">` in the modal + filter sidebar |
-| Skill tags | `const SKILL_CLASS` and the skills picker buttons |
-| Brand name / colors | CSS `:root` variables and `.logo` section in the nav |
-| Track color styles | `const TRACK_STYLE` object |
+```bash
+git clone https://github.com/Asadullah0575/squadra.git
+cd squadra
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Create a Turso database
+
+```bash
+# Install Turso CLI
+curl -sSfL https://get.tur.so/install.sh | bash
+
+# Log in
+turso auth login
+
+# Create DB
+turso db create squadra
+
+# Get your URL and token
+turso db show squadra --url
+turso db tokens create squadra
+```
+
+Or create a database from the [Turso dashboard](https://app.turso.tech).
+
+### 4. Set environment variables
+
+Create a `.env` file (never commit this):
+
+```env
+TURSO_DATABASE_URL=libsql://squadra-yourname.turso.io
+TURSO_AUTH_TOKEN=your-turso-token
+JWT_SECRET=a-long-random-secret-string-at-least-32-chars
+```
+
+Generate a strong JWT secret:
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+### 5. Create the database tables
+
+Start the dev server first:
+```bash
+npm run dev
+```
+
+Then visit:
+```
+http://localhost:3000/api/init?secret=FIRST8CHARSOFYOURJWTSECRET
+```
+
+You should see `{"ok":true,"message":"Tables created successfully"}`.
+
+### 6. Run locally
+
+```bash
+npm run dev
+# → http://localhost:3000
+```
+
+---
+
+## Deploy to Vercel
+
+### Step 1 — Push to GitHub
+
+```bash
+git add .
+git commit -m "feat: add Turso backend"
+git push
+```
+
+### Step 2 — Import on Vercel
+
+1. Go to [vercel.com/new](https://vercel.com/new)
+2. Import `Asadullah0575/squadra`
+3. Framework preset: **Other**
+
+### Step 3 — Add environment variables
+
+In Vercel project settings → **Environment Variables**, add:
+
+| Key | Value |
+|-----|-------|
+| `TURSO_DATABASE_URL` | `libsql://squadra-yourname.turso.io` |
+| `TURSO_AUTH_TOKEN` | your Turso token |
+| `JWT_SECRET` | your random secret string |
+
+### Step 4 — Deploy
+
+Click **Deploy**. Your app will be live at `https://squadra.vercel.app`.
+
+### Step 5 — Init the database
+
+After deploy, visit once:
+```
+https://squadra.vercel.app/api/init?secret=FIRST8CHARSOFYOURJWTSECRET
+```
+
+---
+
+## API Reference
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/api/auth?action=signup` | — | Create account |
+| POST | `/api/auth?action=signin` | — | Sign in, returns JWT |
+| GET | `/api/profiles` | — | List all profiles |
+| POST | `/api/profiles` | ✓ | Create your profile |
+| DELETE | `/api/profiles?id=` | ✓ | Delete your profile |
+| GET | `/api/invites` | ✓ | Get your sent invites |
+| POST | `/api/invites` | ✓ | Send an invite |
 
 ---
 
 ## Roadmap
 
-- [ ] Supabase backend — persist profiles across sessions
-- [ ] Wallet-based auth (sign in with wallet)
-- [ ] In-app messaging between builders
-- [ ] Team formation & confirmation flow
-- [ ] Profile edit / delete
+- [ ] Real-time presence via Turso sync
+- [ ] In-app messaging
+- [ ] Team formation flow
+- [ ] Profile editing
+- [ ] OAuth (GitHub / Google)
 - [ ] Email notifications on invite
-
----
-
-## Contributing
-
-Pull requests are welcome. For major changes, please open an issue first to discuss what you'd like to change.
-
-```bash
-git clone https://github.com/Asadullah0575/squadra.git
-cd squadra
-# make your changes to squadra.html
-git checkout -b feat/your-feature
-git commit -m "feat: describe your change"
-git push origin feat/your-feature
-```
-
-Then open a pull request on GitHub.
 
 ---
 
@@ -118,4 +194,4 @@ Then open a pull request on GitHub.
 
 ---
 
-<p align="center">Built with ⚡ by <a href="https://github.com/Asadullah0575">Asadullah0575</a></p>
+<p align="center">Built by <a href="https://github.com/Asadullah0575">Asadullah0575</a></p>
