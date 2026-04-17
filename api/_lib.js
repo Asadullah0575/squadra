@@ -5,8 +5,9 @@ const { SignJWT, jwtVerify } = require('jose');
 const bcrypt = require('bcryptjs');
 
 function getDB() {
+  const url = (process.env.TURSO_DATABASE_URL || '').replace('libsql://', 'https://');
   return createClient({
-    url:       process.env.TURSO_DATABASE_URL,
+    url,
     authToken: process.env.TURSO_AUTH_TOKEN,
   });
 }
