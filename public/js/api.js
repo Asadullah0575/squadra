@@ -1,4 +1,4 @@
-// js/api.js — all fetch calls to our Vercel API routes
+// public/js/api.js — all fetch calls to Vercel API routes
 
 const BASE = '/api';
 
@@ -19,7 +19,7 @@ async function req(path, options = {}) {
   return data;
 }
 
-// ── Auth ─────────────────────────────────────────────────
+// ── Auth ──────────────────────────────────────────────
 export async function apiSignUp(email, password) {
   const data = await req('/auth?action=signup', { method: 'POST', body: { email, password } });
   localStorage.setItem('sq_token', data.token);
@@ -43,7 +43,7 @@ export function getCurrentUser() {
   try { return JSON.parse(localStorage.getItem('sq_user')); } catch { return null; }
 }
 
-// ── Profiles ─────────────────────────────────────────────
+// ── Profiles ──────────────────────────────────────────
 export async function apiGetProfiles() {
   const data = await req('/profiles');
   return data.profiles;
@@ -54,11 +54,16 @@ export async function apiPostProfile(profile) {
   return data.profile;
 }
 
+export async function apiEditProfile(id, profile) {
+  const data = await req(`/profiles?id=${id}`, { method: 'PUT', body: profile });
+  return data.profile;
+}
+
 export async function apiDeleteProfile(id) {
   await req(`/profiles?id=${id}`, { method: 'DELETE' });
 }
 
-// ── Invites ──────────────────────────────────────────────
+// ── Invites ───────────────────────────────────────────
 export async function apiGetInvites() {
   const data = await req('/invites');
   return data.invites;
@@ -66,4 +71,25 @@ export async function apiGetInvites() {
 
 export async function apiSendInvite(toProfileId) {
   await req('/invites', { method: 'POST', body: { toProfileId } });
+}
+
+// ── Messages ──────────────────────────────────────────
+export async function apiGetMessages(withUserId, after = null) {
+  const q = after ? `&after=${encodeURIComponent(after)}` : '';
+  const data = await req(`/messages?withUserId=${withUserId}${q}`);
+  return data.messages;
+}
+
+export async function apiSendMessage(toUserId, body) {
+  const data = await req('/messages', { method: 'POST', body: { toUserId, body } });
+  return data.message;
+}
+
+export async function apiMarkRead(withUserId) {
+  await req(`/messages?withUserId=${withUserId}`, { method: 'PUT' });
+}
+
+export async function apiGetInbox() {
+  const data = await req('/inbox');
+  return data.conversations;
 }

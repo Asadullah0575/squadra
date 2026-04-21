@@ -44,9 +44,20 @@ module.exports = async function handler(req, res) {
         UNIQUE(from_user_id, to_profile_id)
       );
 
+      CREATE TABLE IF NOT EXISTS messages (
+        id           TEXT PRIMARY KEY,
+        from_user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        to_user_id   TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        body         TEXT NOT NULL,
+        read         INTEGER DEFAULT 0,
+        created_at   TEXT DEFAULT (datetime('now'))
+      );
+
       CREATE INDEX IF NOT EXISTS idx_profiles_track    ON profiles(track);
       CREATE INDEX IF NOT EXISTS idx_profiles_timezone ON profiles(timezone);
       CREATE INDEX IF NOT EXISTS idx_profiles_created  ON profiles(created_at DESC);
+      CREATE INDEX IF NOT EXISTS idx_messages_thread   ON messages(from_user_id, to_user_id);
+      CREATE INDEX IF NOT EXISTS idx_messages_created  ON messages(created_at ASC);
     `);
 
     ok(res, { message: 'Tables created successfully' });

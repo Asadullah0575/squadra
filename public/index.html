@@ -6,14 +6,7 @@
 <title>Squadra — Find Your Team</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg:#080809;--bg2:#0f0f11;--bg3:#161619;--bg4:#1e1e22;
-    --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);--border3:rgba(255,255,255,0.16);
-    --white:#f4f2ee;--muted:#7a7870;--faint:#3a3835;
-    --accent:#d4f53c;--accent2:#c2e030;--accent-dim:rgba(212,245,60,0.1);
-    --teal:#36c9b0;--blue:#5b9cf6;--purple:#a78bfa;--red:#f05050;
-    --r:4px;--r2:8px;
-  }
+  :root{--bg:#080809;--bg2:#0f0f11;--bg3:#161619;--bg4:#1e1e22;--border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);--border3:rgba(255,255,255,0.16);--white:#f4f2ee;--muted:#7a7870;--faint:#3a3835;--accent:#d4f53c;--accent2:#c2e030;--accent-dim:rgba(212,245,60,0.1);--teal:#36c9b0;--blue:#5b9cf6;--purple:#a78bfa;--red:#f05050;--r:4px;--r2:8px}
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased}
   body::after{content:'';position:fixed;inset:0;z-index:999;pointer-events:none;background-image:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px)}
@@ -21,7 +14,7 @@
 
   /* NAV */
   nav{position:sticky;top:0;z-index:100;background:rgba(8,8,9,0.94);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 1.75rem}
-  .logo{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:15px;letter-spacing:-0.01em;color:var(--white);display:flex;align-items:center;gap:10px}
+  .logo{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:15px;letter-spacing:-0.01em;color:var(--white);display:flex;align-items:center;gap:10px;cursor:pointer}
   .logo-mark{width:22px;height:22px;border:1.5px solid var(--accent);border-radius:4px;display:flex;align-items:center;justify-content:center;background:var(--accent-dim)}
   .logo-name span{color:var(--accent)}
   .nav-pill{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--teal);background:rgba(54,201,176,0.08);border:1px solid rgba(54,201,176,0.18);border-radius:3px;padding:2px 7px}
@@ -31,6 +24,12 @@
   .btn-outline:hover{color:var(--white);border-color:var(--border3)}
   .btn-primary{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:0.04em;color:#0a0a0a;background:var(--accent);border:none;border-radius:var(--r);padding:6px 14px;cursor:pointer;transition:background .12s}
   .btn-primary:hover{background:var(--accent2)}
+  .inbox-btn{position:relative}
+  .unread-badge{position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;background:var(--red);color:#fff;font-size:9px;font-weight:600;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace}
+
+  /* PAGES */
+  .page{display:none}
+  .page.active{display:block}
 
   /* HEADER */
   .header{border-bottom:1px solid var(--border);padding:3rem 1.75rem 2rem;display:grid;grid-template-columns:1fr auto;align-items:end;gap:2rem;max-width:1300px;margin:0 auto}
@@ -96,22 +95,53 @@
   .tag-biz{background:rgba(54,201,176,0.1);color:#4ed4ba;border:1px solid rgba(54,201,176,0.15)}
   .tag-ai{background:rgba(240,80,80,0.1);color:#f08080;border:1px solid rgba(240,80,80,0.15)}
   .card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border)}
-  .card-meta-row{display:flex;align-items:center;gap:10px}
+  .card-meta-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
   .meta-chip{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;padding:2px 6px;border-radius:3px;border:1px solid var(--border);color:var(--faint)}
   .track-chip{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:2px 7px;border-radius:3px}
   .need-row{font-size:10px;color:var(--faint);margin-bottom:10px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
   .need-tag{font-family:'IBM Plex Mono',monospace;font-size:9px;padding:1px 5px;border-radius:3px;border:1px solid var(--border);color:var(--muted);background:var(--bg3)}
+  .card-actions{display:flex;gap:5px}
   .invite-btn{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0.04em;padding:4px 10px;border-radius:var(--r);border:1px solid rgba(212,245,60,0.25);background:var(--accent-dim);color:var(--accent);cursor:pointer;transition:all .12s;text-transform:uppercase}
   .invite-btn:hover{background:rgba(212,245,60,0.16)}
   .invite-btn.sent{color:var(--teal);background:rgba(54,201,176,0.08);border-color:rgba(54,201,176,0.2);cursor:default}
   .invite-btn:disabled{opacity:.4;cursor:default}
+  .msg-btn{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0.04em;padding:4px 10px;border-radius:var(--r);border:1px solid rgba(91,156,246,0.25);background:rgba(91,156,246,0.08);color:#7ab0f8;cursor:pointer;transition:all .12s;text-transform:uppercase}
+  .msg-btn:hover{background:rgba(91,156,246,0.14)}
+  .edit-btn{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0.04em;padding:4px 10px;border-radius:var(--r);border:1px solid rgba(212,245,60,0.25);background:var(--accent-dim);color:var(--accent);cursor:pointer;transition:all .12s;text-transform:uppercase}
   .del-btn{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0.04em;padding:4px 10px;border-radius:var(--r);border:1px solid rgba(240,80,80,0.25);background:rgba(240,80,80,0.08);color:#f08080;cursor:pointer;transition:all .12s;text-transform:uppercase}
-  .del-btn:hover{background:rgba(240,80,80,0.14)}
 
   /* SKELETON */
   .skeleton{background:var(--bg2);padding:1.2rem}
   .skel-line{height:12px;border-radius:3px;background:var(--bg3);margin-bottom:8px;animation:shimmer 1.4s infinite}
   @keyframes shimmer{0%,100%{opacity:.4}50%{opacity:.8}}
+
+  /* INBOX PAGE */
+  .inbox-page{max-width:1300px;margin:0 auto;padding:1.5rem 1.75rem 4rem;display:grid;grid-template-columns:280px 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;min-height:600px}
+  .inbox-sidebar{background:var(--bg2);overflow-y:auto}
+  .inbox-header{padding:1rem;border-bottom:1px solid var(--border);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--faint)}
+  .convo-item{padding:12px 1rem;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s}
+  .convo-item:hover{background:var(--bg3)}
+  .convo-item.active{background:var(--bg3);border-left:2px solid var(--accent)}
+  .convo-name{font-size:13px;font-weight:600;color:var(--white);margin-bottom:2px}
+  .convo-preview{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .convo-unread{display:inline-block;background:var(--accent);color:#0a0a0a;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:6px}
+  .chat-area{background:var(--bg2);display:flex;flex-direction:column}
+  .chat-header{padding:1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+  .chat-name{font-size:13px;font-weight:600;color:var(--white)}
+  .chat-role{font-size:11px;color:var(--muted)}
+  .chat-messages{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:8px;min-height:400px;max-height:500px}
+  .chat-empty{display:flex;align-items:center;justify-content:center;height:100%;color:var(--faint);font-size:12px;font-family:'IBM Plex Mono',monospace}
+  .msg-bubble{max-width:70%;padding:8px 12px;border-radius:8px;font-size:13px;line-height:1.5}
+  .msg-bubble.mine{background:var(--accent-dim);border:1px solid rgba(212,245,60,0.15);color:var(--white);align-self:flex-end;border-bottom-right-radius:2px}
+  .msg-bubble.theirs{background:var(--bg3);border:1px solid var(--border);color:var(--white);align-self:flex-start;border-bottom-left-radius:2px}
+  .msg-time{font-size:10px;color:var(--faint);font-family:'IBM Plex Mono',monospace;margin-top:3px}
+  .chat-input-row{padding:1rem;border-top:1px solid var(--border);display:flex;gap:8px}
+  .chat-input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:8px 12px;color:var(--white);font-family:'IBM Plex Sans',sans-serif;font-size:13px;outline:none;transition:border-color .12s}
+  .chat-input:focus{border-color:rgba(212,245,60,0.3)}
+  .chat-input::placeholder{color:var(--faint)}
+  .chat-send{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;padding:8px 14px;background:var(--accent);border:none;border-radius:var(--r);color:#0a0a0a;cursor:pointer;transition:background .12s;white-space:nowrap}
+  .chat-send:hover{background:var(--accent2)}
+  .no-chat{display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:8px;color:var(--faint);font-size:12px}
 
   /* MODALS */
   .overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:1.5rem}
@@ -145,109 +175,135 @@
   .btn-go:disabled,.btn-cancel:disabled{opacity:.5;cursor:not-allowed}
   .form-error{font-size:11px;color:#f08080;margin-top:6px;font-family:'IBM Plex Mono',monospace}
 
-  /* EMPTY */
+  /* EMPTY / TOAST */
   .empty{padding:4rem 2rem;text-align:center;color:var(--faint);grid-column:1/-1;background:var(--bg2);font-size:12px}
-
-  /* TOAST */
   .toast{position:fixed;bottom:1.25rem;right:1.25rem;z-index:300;background:var(--bg3);border:1px solid rgba(54,201,176,0.25);border-radius:var(--r);padding:9px 14px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--teal);opacity:0;transform:translateY(8px);transition:all .18s;pointer-events:none}
   .toast.show{opacity:1;transform:translateY(0)}
   .toast.err{border-color:rgba(240,80,80,0.3);color:#f08080}
 
-  @media(max-width:740px){.layout{grid-template-columns:1fr}.sidebar{position:static}.header{grid-template-columns:1fr}.stats-cluster{display:none}}
+  @media(max-width:740px){.layout{grid-template-columns:1fr}.sidebar{position:static}.header{grid-template-columns:1fr}.stats-cluster{display:none}.inbox-page{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
 <nav>
-  <div class="logo">
+  <div class="logo" onclick="showPage('home')">
     <div class="logo-mark">
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-        <path d="M2 2h3.5v3.5H2V2zm4.5 0H10v3.5H6.5V2zM2 6.5h3.5V10H2V6.5zm4.5 0H10V10H6.5V6.5z" fill="#d4f53c"/>
-      </svg>
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2h3.5v3.5H2V2zm4.5 0H10v3.5H6.5V2zM2 6.5h3.5V10H2V6.5zm4.5 0H10V10H6.5V6.5z" fill="#d4f53c"/></svg>
     </div>
     <span class="logo-name">SQU<span>ADRA</span></span>
   </div>
   <span class="nav-pill">LIVE</span>
   <div class="nav-right">
     <span class="nav-email hidden" id="userEmail"></span>
+    <button class="btn-outline inbox-btn hidden" id="inboxBtn" onclick="showPage('inbox')">
+      INBOX
+      <span class="unread-badge hidden" id="unreadBadge">0</span>
+    </button>
     <button class="btn-outline" id="signinBtn" onclick="openAuthModal('signin')">Sign in</button>
     <button class="btn-outline hidden" id="signoutBtn" onclick="handleSignOut()">Sign out</button>
     <button class="btn-primary hidden" id="postBtn" onclick="openPostModal()">+ Post Profile</button>
   </div>
 </nav>
 
-<div class="header">
-  <div>
-    <div class="header-eyebrow">Team matching platform</div>
-    <h1>Find your <mark>founding team.</mark><br>Build something real.</h1>
-    <p class="header-sub">Connect with builders, designers, and operators across every timezone. Post your profile. Form your squad.</p>
+<!-- HOME PAGE -->
+<div class="page active" id="homePage">
+  <div class="header">
+    <div>
+      <div class="header-eyebrow">Team matching platform</div>
+      <h1>Find your <mark>founding team.</mark><br>Build something real.</h1>
+      <p class="header-sub">Connect with builders, designers, and operators across every timezone. Post your profile. Form your squad.</p>
+    </div>
+    <div class="stats-cluster">
+      <div class="stat-cell"><div class="stat-n" id="sBuilders">—</div><div class="stat-l">Builders</div></div>
+      <div class="stat-cell"><div class="stat-n" id="sCountries">—</div><div class="stat-l">Countries</div></div>
+      <div class="stat-cell"><div class="stat-n">6</div><div class="stat-l">Tracks</div></div>
+    </div>
   </div>
-  <div class="stats-cluster">
-    <div class="stat-cell"><div class="stat-n" id="sBuilders">—</div><div class="stat-l">Builders</div></div>
-    <div class="stat-cell"><div class="stat-n" id="sCountries">—</div><div class="stat-l">Countries</div></div>
-    <div class="stat-cell"><div class="stat-n">6</div><div class="stat-l">Tracks</div></div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sb-section">
+        <div class="sb-label">Search</div>
+        <div class="search-wrap">
+          <svg class="search-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input class="search-input" id="searchInput" type="text" placeholder="Name, skill, role..." oninput="render()">
+        </div>
+      </div>
+      <div class="sb-section">
+        <div class="sb-label">Track</div>
+        <div class="filter-list" id="trackList">
+          <button class="filter-item active" onclick="setF('track','all',this)">All tracks</button>
+          <button class="filter-item" onclick="setF('track','DeFi',this)">DeFi</button>
+          <button class="filter-item" onclick="setF('track','Infrastructure',this)">Infrastructure</button>
+          <button class="filter-item" onclick="setF('track','Consumer',this)">Consumer</button>
+          <button class="filter-item" onclick="setF('track','AI',this)">AI / Agents</button>
+          <button class="filter-item" onclick="setF('track','Gaming',this)">Gaming</button>
+          <button class="filter-item" onclick="setF('track','Privacy',this)">Privacy</button>
+        </div>
+      </div>
+      <div class="sb-section">
+        <div class="sb-label">Role needed</div>
+        <div class="filter-list" id="roleList">
+          <button class="filter-item active" onclick="setF('role','all',this)">Any role</button>
+          <button class="filter-item" onclick="setF('role','Developer',this)">Developer</button>
+          <button class="filter-item" onclick="setF('role','Designer',this)">Designer</button>
+          <button class="filter-item" onclick="setF('role','Business',this)">Business</button>
+          <button class="filter-item" onclick="setF('role','AI/ML',this)">AI / ML</button>
+        </div>
+      </div>
+      <div class="sb-section">
+        <div class="sb-label">Timezone</div>
+        <div class="filter-list" id="tzList">
+          <button class="filter-item active" onclick="setF('tz','all',this)">Worldwide</button>
+          <button class="filter-item" onclick="setF('tz','Americas',this)">Americas</button>
+          <button class="filter-item" onclick="setF('tz','Europe / Africa',this)">Europe / Africa</button>
+          <button class="filter-item" onclick="setF('tz','Asia / Pacific',this)">Asia / Pacific</button>
+        </div>
+      </div>
+      <div class="post-block">
+        <p>Looking for a team? Post your profile and let builders find you.</p>
+        <button onclick="currentUser ? openPostModal() : openAuthModal('signin')">POST YOUR PROFILE →</button>
+      </div>
+    </aside>
+
+    <div>
+      <div class="toolbar">
+        <div class="toolbar-left">Showing <strong id="countLabel">— builders</strong></div>
+        <select class="sort-select" id="sortSel" onchange="render()">
+          <option value="recent">RECENT</option>
+          <option value="active">ACTIVE FIRST</option>
+          <option value="az">A → Z</option>
+        </select>
+      </div>
+      <div class="grid" id="grid">
+        <div class="skeleton"><div class="skel-line" style="width:60%"></div><div class="skel-line" style="width:40%"></div><div class="skel-line" style="width:80%;margin-top:12px"></div></div>
+        <div class="skeleton"><div class="skel-line" style="width:50%"></div><div class="skel-line" style="width:35%"></div><div class="skel-line" style="width:75%;margin-top:12px"></div></div>
+        <div class="skeleton"><div class="skel-line" style="width:65%"></div><div class="skel-line" style="width:45%"></div><div class="skel-line" style="width:70%;margin-top:12px"></div></div>
+      </div>
+    </div>
   </div>
 </div>
 
-<div class="layout">
-  <aside class="sidebar">
-    <div class="sb-section">
-      <div class="sb-label">Search</div>
-      <div class="search-wrap">
-        <svg class="search-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input class="search-input" id="searchInput" type="text" placeholder="Name, skill, role..." oninput="render()">
+<!-- INBOX PAGE -->
+<div class="page" id="inboxPage">
+  <div style="max-width:1300px;margin:0 auto;padding:1.5rem 1.75rem 0;display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--faint)">← <span style="cursor:pointer;color:var(--muted)" onclick="showPage('home')">back to builders</span></div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--white)">INBOX</div>
+    <div style="width:120px"></div>
+  </div>
+  <div style="max-width:1300px;margin:0 auto;padding:0 1.75rem 4rem">
+    <div class="inbox-page">
+      <div class="inbox-sidebar">
+        <div class="inbox-header">Conversations</div>
+        <div id="convList"><div style="padding:2rem;text-align:center;color:var(--faint);font-size:12px">No conversations yet</div></div>
       </div>
-    </div>
-    <div class="sb-section">
-      <div class="sb-label">Track</div>
-      <div class="filter-list" id="trackList">
-        <button class="filter-item active" onclick="setF('track','all',this)">All tracks</button>
-        <button class="filter-item" onclick="setF('track','DeFi',this)">DeFi</button>
-        <button class="filter-item" onclick="setF('track','Infrastructure',this)">Infrastructure</button>
-        <button class="filter-item" onclick="setF('track','Consumer',this)">Consumer</button>
-        <button class="filter-item" onclick="setF('track','AI',this)">AI / Agents</button>
-        <button class="filter-item" onclick="setF('track','Gaming',this)">Gaming</button>
-        <button class="filter-item" onclick="setF('track','Privacy',this)">Privacy</button>
+      <div class="chat-area" id="chatArea">
+        <div class="no-chat">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <p>Select a conversation</p>
+        </div>
       </div>
-    </div>
-    <div class="sb-section">
-      <div class="sb-label">Role needed</div>
-      <div class="filter-list" id="roleList">
-        <button class="filter-item active" onclick="setF('role','all',this)">Any role</button>
-        <button class="filter-item" onclick="setF('role','Developer',this)">Developer</button>
-        <button class="filter-item" onclick="setF('role','Designer',this)">Designer</button>
-        <button class="filter-item" onclick="setF('role','Business',this)">Business</button>
-        <button class="filter-item" onclick="setF('role','AI/ML',this)">AI / ML</button>
-      </div>
-    </div>
-    <div class="sb-section">
-      <div class="sb-label">Timezone</div>
-      <div class="filter-list" id="tzList">
-        <button class="filter-item active" onclick="setF('tz','all',this)">Worldwide</button>
-        <button class="filter-item" onclick="setF('tz','Americas',this)">Americas</button>
-        <button class="filter-item" onclick="setF('tz','Europe / Africa',this)">Europe / Africa</button>
-        <button class="filter-item" onclick="setF('tz','Asia / Pacific',this)">Asia / Pacific</button>
-      </div>
-    </div>
-    <div class="post-block">
-      <p>Looking for a team? Post your profile and let builders find you.</p>
-      <button onclick="currentUser ? openPostModal() : openAuthModal('signin')">POST YOUR PROFILE →</button>
-    </div>
-  </aside>
-
-  <div>
-    <div class="toolbar">
-      <div class="toolbar-left">Showing <strong id="countLabel">— builders</strong></div>
-      <select class="sort-select" id="sortSel" onchange="render()">
-        <option value="recent">RECENT</option>
-        <option value="active">ACTIVE FIRST</option>
-        <option value="az">A → Z</option>
-      </select>
-    </div>
-    <div class="grid" id="grid">
-      <div class="skeleton"><div class="skel-line" style="width:60%"></div><div class="skel-line" style="width:40%"></div><div class="skel-line" style="width:80%;margin-top:12px"></div></div>
-      <div class="skeleton"><div class="skel-line" style="width:50%"></div><div class="skel-line" style="width:35%"></div><div class="skel-line" style="width:75%;margin-top:12px"></div></div>
-      <div class="skeleton"><div class="skel-line" style="width:65%"></div><div class="skel-line" style="width:45%"></div><div class="skel-line" style="width:70%;margin-top:12px"></div></div>
     </div>
   </div>
 </div>
@@ -291,7 +347,7 @@
     <div class="field"><div class="field-label">Bio <span class="req">*</span></div><textarea class="f-textarea" id="pBio" placeholder="What are you building? What's your background?"></textarea></div>
     <div class="divider"></div>
     <div class="field"><div class="field-label">Your skills</div>
-      <div class="pick-grid">
+      <div class="pick-grid" id="skillPicker">
         <button class="pick-btn" onclick="tog(this,'Rust')">Rust</button>
         <button class="pick-btn" onclick="tog(this,'TypeScript')">TypeScript</button>
         <button class="pick-btn" onclick="tog(this,'React')">React</button>
@@ -309,7 +365,7 @@
       </div>
     </div>
     <div class="field" style="margin-top:12px"><div class="field-label">Looking for</div>
-      <div class="pick-grid">
+      <div class="pick-grid" id="lookPicker">
         <button class="pick-btn" onclick="togL(this,'Developer')">Developer</button>
         <button class="pick-btn" onclick="togL(this,'Designer')">Designer</button>
         <button class="pick-btn" onclick="togL(this,'Business')">Business</button>
@@ -325,47 +381,111 @@
   </div>
 </div>
 
+<!-- EDIT MODAL -->
+<div class="overlay" id="editOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div><div class="modal-title">Edit your profile</div><div class="modal-sub">Update your info</div></div>
+      <button class="close-btn" onclick="closeEditModal()">✕</button>
+    </div>
+    <div class="row2">
+      <div class="field"><div class="field-label">Name <span class="req">*</span></div><input class="f-input" id="eName" type="text"></div>
+      <div class="field"><div class="field-label">Role <span class="req">*</span></div><input class="f-input" id="eRole" type="text"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><div class="field-label">Track <span class="req">*</span></div>
+        <select class="f-select" id="eTrack"><option value="">Select...</option><option>DeFi</option><option>Infrastructure</option><option>Consumer</option><option>AI</option><option>Gaming</option><option>Privacy</option></select>
+      </div>
+      <div class="field"><div class="field-label">Timezone <span class="req">*</span></div>
+        <select class="f-select" id="eTz"><option value="">Select...</option><option>Americas</option><option>Europe / Africa</option><option>Asia / Pacific</option></select>
+      </div>
+    </div>
+    <div class="field"><div class="field-label">Bio <span class="req">*</span></div><textarea class="f-textarea" id="eBio"></textarea></div>
+    <div class="divider"></div>
+    <div class="field"><div class="field-label">Your skills</div>
+      <div class="pick-grid" id="editSkillPicker">
+        <button class="pick-btn" onclick="togE(this,'Rust')">Rust</button>
+        <button class="pick-btn" onclick="togE(this,'TypeScript')">TypeScript</button>
+        <button class="pick-btn" onclick="togE(this,'React')">React</button>
+        <button class="pick-btn" onclick="togE(this,'Solana')">Solana</button>
+        <button class="pick-btn" onclick="togE(this,'Smart Contracts')">Smart Contracts</button>
+        <button class="pick-btn" onclick="togE(this,'AI/ML')">AI/ML</button>
+        <button class="pick-btn" onclick="togE(this,'UI/UX')">UI/UX</button>
+        <button class="pick-btn" onclick="togE(this,'Product')">Product</button>
+        <button class="pick-btn" onclick="togE(this,'Go-to-market')">Go-to-market</button>
+        <button class="pick-btn" onclick="togE(this,'DeFi Protocols')">DeFi Protocols</button>
+        <button class="pick-btn" onclick="togE(this,'Python')">Python</button>
+        <button class="pick-btn" onclick="togE(this,'DevOps')">DevOps</button>
+        <button class="pick-btn" onclick="togE(this,'Anchor')">Anchor</button>
+        <button class="pick-btn" onclick="togE(this,'Go')">Go</button>
+      </div>
+    </div>
+    <div class="field" style="margin-top:12px"><div class="field-label">Looking for</div>
+      <div class="pick-grid" id="editLookPicker">
+        <button class="pick-btn" onclick="togEL(this,'Developer')">Developer</button>
+        <button class="pick-btn" onclick="togEL(this,'Designer')">Designer</button>
+        <button class="pick-btn" onclick="togEL(this,'Business')">Business</button>
+        <button class="pick-btn" onclick="togEL(this,'AI/ML Engineer')">AI/ML Engineer</button>
+        <button class="pick-btn" onclick="togEL(this,'Solana Expert')">Solana Expert</button>
+      </div>
+    </div>
+    <div class="form-error hidden" id="editError"></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeEditModal()">CANCEL</button>
+      <button class="btn-go" id="editSubmitBtn" onclick="submitEdit()">SAVE CHANGES →</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script type="module">
-import { apiSignUp, apiSignIn, apiSignOut, getCurrentUser,
-         apiGetProfiles, apiPostProfile, apiDeleteProfile,
-         apiGetInvites, apiSendInvite } from '/js/api.js';
-
+import {
+  apiSignUp, apiSignIn, apiSignOut, getCurrentUser,
+  apiGetProfiles, apiPostProfile, apiEditProfile, apiDeleteProfile,
+  apiGetInvites, apiSendInvite,
+  apiGetMessages, apiSendMessage, apiMarkRead, apiGetInbox
+} from '/js/api.js';
 
 // ── constants ──────────────────────────────────────────
-const AVI = [
-  {bg:'rgba(91,156,246,0.15)',color:'#7ab0f8'},
-  {bg:'rgba(212,245,60,0.1)',color:'#c2e030'},
-  {bg:'rgba(54,201,176,0.12)',color:'#4ed4ba'},
-  {bg:'rgba(167,139,250,0.12)',color:'#b89ffa'},
-  {bg:'rgba(240,128,80,0.12)',color:'#f0a080'},
-];
-const TS = {
-  DeFi:'background:rgba(54,201,176,0.1);color:#4ed4ba;border:1px solid rgba(54,201,176,0.15)',
-  Infrastructure:'background:rgba(91,156,246,0.1);color:#7ab0f8;border:1px solid rgba(91,156,246,0.15)',
-  Consumer:'background:rgba(212,245,60,0.08);color:#c2e030;border:1px solid rgba(212,245,60,0.12)',
-  AI:'background:rgba(167,139,250,0.1);color:#b89ffa;border:1px solid rgba(167,139,250,0.15)',
-  Gaming:'background:rgba(240,128,80,0.1);color:#f0a080;border:1px solid rgba(240,128,80,0.15)',
-  Privacy:'background:rgba(255,255,255,0.05);color:#7a7870;border:1px solid rgba(255,255,255,0.08)',
-};
-const SC = {Rust:'dev',TypeScript:'dev',React:'dev',Go:'dev',Python:'dev',DevOps:'dev','Smart Contracts':'sol',Solana:'sol','DeFi Protocols':'sol',Anchor:'sol','UI/UX':'design',Figma:'design',Product:'biz','Go-to-market':'biz',BD:'biz',Marketing:'biz','AI/ML':'ai',LLMs:'ai',Agents:'ai'};
+const AVI=[{bg:'rgba(91,156,246,0.15)',color:'#7ab0f8'},{bg:'rgba(212,245,60,0.1)',color:'#c2e030'},{bg:'rgba(54,201,176,0.12)',color:'#4ed4ba'},{bg:'rgba(167,139,250,0.12)',color:'#b89ffa'},{bg:'rgba(240,128,80,0.12)',color:'#f0a080'}];
+const TS={DeFi:'background:rgba(54,201,176,0.1);color:#4ed4ba;border:1px solid rgba(54,201,176,0.15)',Infrastructure:'background:rgba(91,156,246,0.1);color:#7ab0f8;border:1px solid rgba(91,156,246,0.15)',Consumer:'background:rgba(212,245,60,0.08);color:#c2e030;border:1px solid rgba(212,245,60,0.12)',AI:'background:rgba(167,139,250,0.1);color:#b89ffa;border:1px solid rgba(167,139,250,0.15)',Gaming:'background:rgba(240,128,80,0.1);color:#f0a080;border:1px solid rgba(240,128,80,0.15)',Privacy:'background:rgba(255,255,255,0.05);color:#7a7870;border:1px solid rgba(255,255,255,0.08)'};
+const SC={Rust:'dev',TypeScript:'dev',React:'dev',Go:'dev',Python:'dev',DevOps:'dev','Smart Contracts':'sol',Solana:'sol','DeFi Protocols':'sol',Anchor:'sol','UI/UX':'design',Figma:'design',Product:'biz','Go-to-market':'biz',BD:'biz',Marketing:'biz','AI/ML':'ai',LLMs:'ai',Agents:'ai'};
 
 // ── state ──────────────────────────────────────────────
 let allProfiles=[], myInvites=[], selSkills=[], selLooking=[];
+let editSkills=[], editLooking=[], editingProfileId=null;
 let F={track:'all',role:'all',tz:'all'}, authMode='signin';
+let activeConvoUserId=null, pollInterval=null, lastMsgTime=null;
 window.currentUser = getCurrentUser();
 
 // ── helpers ────────────────────────────────────────────
-const ini = n => n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-const aviColor = id => { let h=0; for(let c of id) h=(h*31+c.charCodeAt(0))&0xffffffff; return AVI[Math.abs(h)%AVI.length]; };
-const sc = s => SC[s]||'biz';
-const ts = t => TS[t]||'background:rgba(255,255,255,0.05);color:#7a7870;border:1px solid rgba(255,255,255,0.08)';
+const ini=n=>n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+const aviColor=id=>{let h=0;for(let c of id)h=(h*31+c.charCodeAt(0))&0xffffffff;return AVI[Math.abs(h)%AVI.length]};
+const sc=s=>SC[s]||'biz';
+const ts=t=>TS[t]||'background:rgba(255,255,255,0.05);color:#7a7870;border:1px solid rgba(255,255,255,0.08)';
+const fmtTime=s=>{const d=new Date(s+'Z');return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})};
+
+// ── pages ──────────────────────────────────────────────
+window.showPage = (page) => {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(page+'Page').classList.add('active');
+  if(page==='inbox') loadInbox();
+};
 
 // ── card ───────────────────────────────────────────────
 function cardHTML(b) {
   const av=aviColor(b.id), isOwn=window.currentUser?.id===b.user_id, invited=myInvites.includes(b.id);
   const tzS=(b.timezone||'').replace('Europe / Africa','EU/AF').replace('Asia / Pacific','AS/PAC');
+  const actions = isOwn
+    ? `<div class="card-actions">
+         <button class="edit-btn" onclick="openEditModal('${b.id}')">EDIT</button>
+         <button class="del-btn" onclick="window.deleteMyProfile('${b.id}')">DEL</button>
+       </div>`
+    : `<div class="card-actions">
+         <button class="invite-btn ${invited?'sent':''}" id="ib-${b.id}" onclick="window.handleInvite('${b.id}',this)">${invited?'✓ SENT':'INVITE'}</button>
+         ${window.currentUser ? `<button class="msg-btn" onclick="startChat('${b.user_id}','${b.name}','${b.role}')">MSG</button>` : ''}
+       </div>`;
   return `<div class="card">
     <div class="card-head">
       <div class="avi" style="background:${av.bg};color:${av.color}">${ini(b.name)}</div>
@@ -380,9 +500,7 @@ function cardHTML(b) {
         <span class="meta-chip">${tzS}</span>
         <span class="track-chip" style="${ts(b.track)}">${(b.track||'').toUpperCase()}</span>
       </div>
-      ${isOwn
-        ? `<button class="del-btn" onclick="window.deleteMyProfile('${b.id}')">DELETE</button>`
-        : `<button class="invite-btn ${invited?'sent':''}" id="ib-${b.id}" onclick="window.handleInvite('${b.id}',this)">${invited?'✓ SENT':'INVITE'}</button>`}
+      ${actions}
     </div>
   </div>`;
 }
@@ -401,9 +519,9 @@ function render() {
   g.innerHTML=list.length?list.map(cardHTML).join(''):`<div class="empty"><p style="font-family:'IBM Plex Mono',monospace;font-size:11px;margin-bottom:8px">NO BUILDERS MATCH</p><p>Try adjusting your filters</p></div>`;
   document.getElementById('countLabel').textContent=`${list.length} builder${list.length!==1?'s':''}`;
 }
-window.render = render;
+window.render=render;
 
-window.setF = (type,val,el) => {
+window.setF=(type,val,el)=>{
   F[type]=val;
   const map={track:'trackList',role:'roleList',tz:'tzList'};
   document.querySelectorAll(`#${map[type]} .filter-item`).forEach(i=>i.classList.remove('active'));
@@ -413,38 +531,152 @@ window.setF = (type,val,el) => {
 // ── load ───────────────────────────────────────────────
 async function load() {
   try {
-    [allProfiles, myInvites] = await Promise.all([apiGetProfiles(), window.currentUser ? apiGetInvites() : Promise.resolve([])]);
+    [allProfiles, myInvites]=await Promise.all([apiGetProfiles(), window.currentUser?apiGetInvites():Promise.resolve([])]);
     const countries=new Set(allProfiles.map(p=>p.country).filter(Boolean));
     document.getElementById('sBuilders').textContent=allProfiles.length;
     document.getElementById('sCountries').textContent=countries.size;
     render();
   } catch(e) {
-    document.getElementById('grid').innerHTML=`<div class="empty"><p>Failed to load profiles — check your API config.</p></div>`;
+    document.getElementById('grid').innerHTML=`<div class="empty"><p>Failed to load profiles.</p></div>`;
   }
 }
 
 // ── invite ─────────────────────────────────────────────
-window.handleInvite = async (profileId, btn) => {
+window.handleInvite=async(profileId,btn)=>{
   if(!window.currentUser){openAuthModal('signin');return}
   if(btn.classList.contains('sent')) return;
   btn.disabled=true;
   try {
     await apiSendInvite(profileId);
     myInvites.push(profileId); btn.classList.add('sent'); btn.textContent='✓ SENT';
-    const p=allProfiles.find(x=>x.id===profileId);
-    toast(`Invite sent to ${p?.name||'builder'}`);
-  } catch(e) { toast(e.message,true); btn.disabled=false; }
+    toast(`Invite sent — they'll receive an email notification`);
+  } catch(e){toast(e.message,true); btn.disabled=false;}
 };
 
-window.deleteMyProfile = async (id) => {
+window.deleteMyProfile=async(id)=>{
   if(!confirm('Delete your profile?')) return;
   try {
     await apiDeleteProfile(id);
     allProfiles=allProfiles.filter(p=>p.id!==id);
     document.getElementById('sBuilders').textContent=allProfiles.length;
     render(); toast('Profile deleted');
-  } catch(e) { toast(e.message,true); }
+  } catch(e){toast(e.message,true);}
 };
+
+// ── messaging ──────────────────────────────────────────
+window.startChat=(userId,name,role)=>{
+  if(!window.currentUser){openAuthModal('signin');return}
+  showPage('inbox');
+  setTimeout(()=>openConvo(userId,name,role), 100);
+};
+
+async function loadInbox() {
+  if(!window.currentUser) return;
+  try {
+    const convos=await apiGetInbox();
+    const list=document.getElementById('convList');
+    if(!convos.length){list.innerHTML='<div style="padding:2rem;text-align:center;color:var(--faint);font-size:12px">No conversations yet</div>';return;}
+    list.innerHTML=convos.map(c=>`
+      <div class="convo-item ${activeConvoUserId===c.other_id?'active':''}" onclick="openConvo('${c.other_id}','${c.other_name||'Builder'}','${c.other_role||''}')">
+        <div class="convo-name">${c.other_name||'Builder'} ${c.unread_count>0?`<span class="convo-unread">${c.unread_count}</span>`:''}</div>
+        <div class="convo-preview">${c.last_body||''}</div>
+      </div>`).join('');
+    const total=convos.reduce((s,c)=>s+parseInt(c.unread_count||0),0);
+    updateUnreadBadge(total);
+  } catch(e){}
+}
+
+async function openConvo(userId,name,role) {
+  activeConvoUserId=userId; lastMsgTime=null;
+  if(pollInterval) clearInterval(pollInterval);
+
+  const chat=document.getElementById('chatArea');
+  chat.innerHTML=`
+    <div class="chat-header">
+      <div class="avi" style="width:32px;height:32px;font-size:11px;border-radius:5px;background:rgba(91,156,246,0.15);color:#7ab0f8;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-weight:600">${ini(name)}</div>
+      <div><div class="chat-name">${name}</div><div class="chat-role">${role}</div></div>
+    </div>
+    <div class="chat-messages" id="chatMsgs"><div class="chat-empty">Loading...</div></div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chatInput" placeholder="Type a message..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();window.sendMsg()}">
+      <button class="chat-send" onclick="window.sendMsg()">SEND →</button>
+    </div>`;
+
+  await loadMessages(userId);
+  await apiMarkRead(userId);
+  loadInbox();
+
+  pollInterval=setInterval(async()=>{
+    await loadMessages(userId, true);
+  }, 5000);
+}
+
+async function loadMessages(userId, onlyNew=false) {
+  try {
+    const msgs=await apiGetMessages(userId, onlyNew?lastMsgTime:null);
+    if(!msgs.length && !onlyNew){
+      document.getElementById('chatMsgs').innerHTML='<div class="chat-empty">No messages yet — say hello!</div>';
+      return;
+    }
+    if(!msgs.length) return;
+
+    lastMsgTime=msgs[msgs.length-1].created_at;
+    const container=document.getElementById('chatMsgs');
+    const isBottom=container.scrollHeight-container.scrollTop-container.clientHeight<60;
+
+    if(onlyNew){
+      msgs.forEach(m=>{
+        const div=document.createElement('div');
+        div.innerHTML=msgHTML(m);
+        container.appendChild(div.firstChild);
+      });
+    } else {
+      container.innerHTML=msgs.map(msgHTML).join('');
+    }
+    if(!onlyNew||isBottom) container.scrollTop=container.scrollHeight;
+  } catch(e){}
+}
+
+function msgHTML(m) {
+  const mine=m.from_user_id===window.currentUser?.id;
+  return `<div>
+    <div class="msg-bubble ${mine?'mine':'theirs'}">${m.body}</div>
+    <div class="msg-time" style="text-align:${mine?'right':'left'}">${fmtTime(m.created_at)}</div>
+  </div>`;
+}
+
+window.sendMsg=async()=>{
+  const input=document.getElementById('chatInput');
+  const body=input?.value?.trim();
+  if(!body||!activeConvoUserId) return;
+  input.value='';
+  try {
+    const msg=await apiSendMessage(activeConvoUserId, body);
+    lastMsgTime=msg.created_at;
+    const container=document.getElementById('chatMsgs');
+    const div=document.createElement('div');
+    div.innerHTML=msgHTML(msg);
+    container.appendChild(div.firstChild);
+    container.scrollTop=container.scrollHeight;
+    loadInbox();
+  } catch(e){toast(e.message,true);}
+};
+
+function updateUnreadBadge(count) {
+  const badge=document.getElementById('unreadBadge');
+  if(count>0){badge.textContent=count;badge.classList.remove('hidden');}
+  else badge.classList.add('hidden');
+}
+
+// poll unread count every 30s when on home page
+setInterval(async()=>{
+  if(!window.currentUser) return;
+  try {
+    const convos=await apiGetInbox();
+    const total=convos.reduce((s,c)=>s+parseInt(c.unread_count||0),0);
+    updateUnreadBadge(total);
+  } catch(e){}
+}, 30000);
 
 // ── nav ────────────────────────────────────────────────
 function updateNav() {
@@ -452,18 +684,23 @@ function updateNav() {
   document.getElementById('signinBtn').classList.toggle('hidden',!!u);
   document.getElementById('signoutBtn').classList.toggle('hidden',!u);
   document.getElementById('postBtn').classList.toggle('hidden',!u);
+  document.getElementById('inboxBtn').classList.toggle('hidden',!u);
   document.getElementById('userEmail').classList.toggle('hidden',!u);
   if(u) document.getElementById('userEmail').textContent=u.email;
 }
 
-window.handleSignOut = () => { apiSignOut(); window.currentUser=null; myInvites=[]; updateNav(); render(); toast('Signed out'); };
+window.handleSignOut=()=>{
+  apiSignOut(); window.currentUser=null; myInvites=[];
+  if(pollInterval) clearInterval(pollInterval);
+  updateNav(); render(); showPage('home'); toast('Signed out');
+};
 
 // ── auth modal ─────────────────────────────────────────
-window.openAuthModal = (mode='signin') => { authMode=mode; updateAuthModal(); document.getElementById('authOverlay').classList.add('open'); };
-window.closeAuthModal = () => document.getElementById('authOverlay').classList.remove('open');
-window.toggleAuthMode = () => { authMode=authMode==='signin'?'signup':'signin'; updateAuthModal(); };
+window.openAuthModal=(mode='signin')=>{authMode=mode;updateAuthModal();document.getElementById('authOverlay').classList.add('open')};
+window.closeAuthModal=()=>document.getElementById('authOverlay').classList.remove('open');
+window.toggleAuthMode=()=>{authMode=authMode==='signin'?'signup':'signin';updateAuthModal()};
 
-function updateAuthModal() {
+function updateAuthModal(){
   const s=authMode==='signin';
   document.getElementById('authTitle').textContent=s?'Sign in':'Create account';
   document.getElementById('authSub').textContent=s?'Welcome back to Squadra':'Join Squadra and find your team';
@@ -472,7 +709,7 @@ function updateAuthModal() {
   document.getElementById('authError').classList.add('hidden');
 }
 
-window.handleAuth = async () => {
+window.handleAuth=async()=>{
   const email=document.getElementById('authEmail').value.trim();
   const password=document.getElementById('authPassword').value;
   const errEl=document.getElementById('authError');
@@ -480,22 +717,21 @@ window.handleAuth = async () => {
   errEl.classList.add('hidden'); btn.disabled=true;
   btn.textContent=authMode==='signin'?'SIGNING IN...':'CREATING...';
   try {
-    window.currentUser = authMode==='signin' ? await apiSignIn(email,password) : await apiSignUp(email,password);
+    window.currentUser=authMode==='signin'?await apiSignIn(email,password):await apiSignUp(email,password);
     updateNav(); closeAuthModal();
-    myInvites = await apiGetInvites();
+    myInvites=await apiGetInvites();
     render(); toast(authMode==='signin'?'Welcome back!':'Account created!');
-  } catch(e) { errEl.textContent=e.message; errEl.classList.remove('hidden'); }
-  finally { btn.disabled=false; updateAuthModal(); }
+  } catch(e){errEl.textContent=e.message;errEl.classList.remove('hidden');}
+  finally{btn.disabled=false;updateAuthModal();}
 };
 
 // ── post modal ─────────────────────────────────────────
-window.openPostModal = () => { if(!window.currentUser){openAuthModal('signin');return} document.getElementById('postOverlay').classList.add('open'); };
-window.closePostModal = () => document.getElementById('postOverlay').classList.remove('open');
+window.openPostModal=()=>{if(!window.currentUser){openAuthModal('signin');return}document.getElementById('postOverlay').classList.add('open')};
+window.closePostModal=()=>document.getElementById('postOverlay').classList.remove('open');
+window.tog=(btn,s)=>{btn.classList.toggle('on');selSkills=btn.classList.contains('on')?[...selSkills,s]:selSkills.filter(x=>x!==s)};
+window.togL=(btn,s)=>{btn.classList.toggle('on');selLooking=btn.classList.contains('on')?[...selLooking,s]:selLooking.filter(x=>x!==s)};
 
-window.tog  = (btn,s) => { btn.classList.toggle('on'); selSkills=btn.classList.contains('on')?[...selSkills,s]:selSkills.filter(x=>x!==s); };
-window.togL = (btn,s) => { btn.classList.toggle('on'); selLooking=btn.classList.contains('on')?[...selLooking,s]:selLooking.filter(x=>x!==s); };
-
-window.submitProfile = async () => {
+window.submitProfile=async()=>{
   const name=document.getElementById('pName').value.trim();
   const role=document.getElementById('pRole').value.trim();
   const track=document.getElementById('pTrack').value;
@@ -514,18 +750,62 @@ window.submitProfile = async () => {
     closePostModal(); render(); toast(`Profile posted — welcome, ${name.split(' ')[0]}.`);
     ['pName','pRole','pBio'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('pTrack').value=''; document.getElementById('pTz').value='';
-    selSkills=[]; selLooking=[]; document.querySelectorAll('.pick-btn').forEach(b=>b.classList.remove('on'));
-  } catch(e) { errEl.textContent=e.message; errEl.classList.remove('hidden'); }
-  finally { btn.disabled=false; btn.textContent='POST TO SQUADRA →'; }
+    selSkills=[]; selLooking=[]; document.querySelectorAll('#skillPicker .pick-btn, #lookPicker .pick-btn').forEach(b=>b.classList.remove('on'));
+  } catch(e){errEl.textContent=e.message;errEl.classList.remove('hidden');}
+  finally{btn.disabled=false;btn.textContent='POST TO SQUADRA →';}
 };
 
-// ── overlay close on backdrop ─────────────────────────
-['authOverlay','postOverlay'].forEach(id=>{
-  document.getElementById(id).addEventListener('click',e=>{if(e.target===document.getElementById(id)) document.getElementById(id).classList.remove('open');});
+// ── edit modal ─────────────────────────────────────────
+window.openEditModal=(profileId)=>{
+  const p=allProfiles.find(x=>x.id===profileId);
+  if(!p) return;
+  editingProfileId=profileId;
+  editSkills=[...p.skills]; editLooking=[...p.looking_for];
+  document.getElementById('eName').value=p.name;
+  document.getElementById('eRole').value=p.role;
+  document.getElementById('eTrack').value=p.track;
+  document.getElementById('eTz').value=p.timezone;
+  document.getElementById('eBio').value=p.bio;
+  document.querySelectorAll('#editSkillPicker .pick-btn').forEach(b=>{
+    b.classList.toggle('on', editSkills.includes(b.textContent));
+  });
+  document.querySelectorAll('#editLookPicker .pick-btn').forEach(b=>{
+    b.classList.toggle('on', editLooking.includes(b.textContent));
+  });
+  document.getElementById('editError').classList.add('hidden');
+  document.getElementById('editOverlay').classList.add('open');
+};
+window.closeEditModal=()=>document.getElementById('editOverlay').classList.remove('open');
+window.togE=(btn,s)=>{btn.classList.toggle('on');editSkills=btn.classList.contains('on')?[...editSkills,s]:editSkills.filter(x=>x!==s)};
+window.togEL=(btn,s)=>{btn.classList.toggle('on');editLooking=btn.classList.contains('on')?[...editLooking,s]:editLooking.filter(x=>x!==s)};
+
+window.submitEdit=async()=>{
+  const name=document.getElementById('eName').value.trim();
+  const role=document.getElementById('eRole').value.trim();
+  const track=document.getElementById('eTrack').value;
+  const tz=document.getElementById('eTz').value;
+  const bio=document.getElementById('eBio').value.trim();
+  const errEl=document.getElementById('editError');
+  const btn=document.getElementById('editSubmitBtn');
+  errEl.classList.add('hidden');
+  if(!name||!role||!track||!tz||!bio){errEl.textContent='Fill in all required fields';errEl.classList.remove('hidden');return}
+  btn.disabled=true; btn.textContent='SAVING...';
+  try {
+    const updated=await apiEditProfile(editingProfileId,{name,role,track,timezone:tz,bio,skills:editSkills,lookingFor:editLooking});
+    const idx=allProfiles.findIndex(p=>p.id===editingProfileId);
+    if(idx>=0) allProfiles[idx]=updated;
+    closeEditModal(); render(); toast('Profile updated!');
+  } catch(e){errEl.textContent=e.message;errEl.classList.remove('hidden');}
+  finally{btn.disabled=false;btn.textContent='SAVE CHANGES →';}
+};
+
+// ── overlay close ──────────────────────────────────────
+['authOverlay','postOverlay','editOverlay'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',e=>{if(e.target===document.getElementById(id))document.getElementById(id).classList.remove('open')});
 });
 
 // ── toast ──────────────────────────────────────────────
-window.toast = (msg,isErr=false) => {
+window.toast=(msg,isErr=false)=>{
   const t=document.getElementById('toast');
   t.textContent=msg; t.className='toast show'+(isErr?' err':'');
   setTimeout(()=>t.className='toast',3200);

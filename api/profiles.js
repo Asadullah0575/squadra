@@ -1,4 +1,8 @@
 // api/profiles.js (CommonJS)
+// GET    /api/profiles        — fetch all profiles
+// POST   /api/profiles        — create profile
+// PUT    /api/profiles?id=... — edit own profile
+// DELETE /api/profiles?id=... — delete own profile
 
 const { getDB, verifyToken, getToken, cors, ok, err } = require('./_lib');
 const { randomUUID } = require('crypto');
@@ -9,6 +13,7 @@ module.exports = async function handler(req, res) {
 
   const db = getDB();
 
+  // ── GET all ──────────────────────────────────────────
   if (req.method === 'GET') {
     try {
       const result = await db.execute('SELECT * FROM profiles ORDER BY created_at DESC');
@@ -18,6 +23,7 @@ module.exports = async function handler(req, res) {
     }
   }
 
+  // ── POST create ──────────────────────────────────────
   if (req.method === 'POST') {
     const user = await verifyToken(getToken(req));
     if (!user) return err(res, 'Unauthorised', 401);
@@ -30,22 +36,53 @@ module.exports = async function handler(req, res) {
       sql: 'SELECT id FROM profiles WHERE user_id = ?', args: [user.sub],
     });
     if (existing.rows.length)
-      return err(res, 'You already have a profile. Delete it first to repost.');
+      return err(res, 'You already have a profile. Edit or delete it first.');
 
     const id = randomUUID();
     await db.execute({
       sql: `INSERT INTO profiles (id, user_id, name, role, track, timezone, bio, country, skills, looking_for)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       args: [id, user.sub, name, role, track, timezone, bio,
-             country || '??',
-             JSON.stringify(skills     || []),
-             JSON.stringify(lookingFor || [])],
+        country || '??',
+        JSON.stringify(skills     || []),
+        JSON.stringify(lookingFor || [])],
     });
 
     const row = await db.execute({ sql: 'SELECT * FROM profiles WHERE id = ?', args: [id] });
     return ok(res, { profile: parse(row.rows[0]) }, 201);
   }
 
+  // ── PUT edit ─────────────────────────────────────────
+  if (req.method === 'PUT') {
+    const user = await verifyToken(getToken(req));
+    if (!user) return err(res, 'Unauthorised', 401);
+
+    const { id } = req.query;
+    if (!id) return err(res, 'Profile id required');
+
+    const { name, role, track, timezone, bio, country, skills, lookingFor } = req.body || {};
+    if (!name || !role || !track || !timezone || !bio)
+      return err(res, 'Missing required fields');
+
+    const result = await db.execute({
+      sql: `UPDATE profiles SET
+              name = ?, role = ?, track = ?, timezone = ?, bio = ?,
+              country = ?, skills = ?, looking_for = ?
+            WHERE id = ? AND user_id = ?`,
+      args: [name, role, track, timezone, bio,
+        country || '??',
+        JSON.stringify(skills     || []),
+        JSON.stringify(lookingFor || []),
+        id, user.sub],
+    });
+
+    if (result.rowsAffected === 0) return err(res, 'Profile not found or not yours', 404);
+
+    const row = await db.execute({ sql: 'SELECT * FROM profiles WHERE id = ?', args: [id] });
+    return ok(res, { profile: parse(row.rows[0]) });
+  }
+
+  // ── DELETE ───────────────────────────────────────────
   if (req.method === 'DELETE') {
     const user = await verifyToken(getToken(req));
     if (!user) return err(res, 'Unauthorised', 401);
