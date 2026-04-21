@@ -24,8 +24,27 @@
   .btn-outline:hover{color:var(--white);border-color:var(--border3)}
   .btn-primary{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:0.04em;color:#0a0a0a;background:var(--accent);border:none;border-radius:var(--r);padding:6px 14px;cursor:pointer;transition:background .12s}
   .btn-primary:hover{background:var(--accent2)}
-  .inbox-btn{position:relative}
-  .unread-badge{position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;background:var(--red);color:#fff;font-size:9px;font-weight:600;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace}
+
+  /* BELL */
+  .bell-wrap{position:relative}
+  .bell-btn{width:34px;height:34px;border:1px solid var(--border2);border-radius:var(--r);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s;position:relative}
+  .bell-btn:hover{color:var(--white);border-color:var(--border3)}
+  .bell-badge{position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;background:var(--red);color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;border:2px solid var(--bg)}
+  .bell-dropdown{position:absolute;top:calc(100% + 8px);right:0;width:320px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r2);overflow:hidden;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,0.4)}
+  .bell-header{padding:10px 14px;border-bottom:1px solid var(--border);font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--faint)}
+  .invite-notif{padding:12px 14px;border-bottom:1px solid var(--border);transition:background .1s}
+  .invite-notif:last-child{border-bottom:none}
+  .invite-notif:hover{background:var(--bg3)}
+  .notif-name{font-size:13px;font-weight:600;color:var(--white);margin-bottom:2px}
+  .notif-role{font-size:11px;color:var(--muted);margin-bottom:8px}
+  .notif-actions{display:flex;gap:6px}
+  .accept-btn{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:4px 12px;border-radius:var(--r);border:none;background:var(--accent);color:#0a0a0a;cursor:pointer;transition:background .12s;letter-spacing:0.04em}
+  .accept-btn:hover{background:var(--accent2)}
+  .decline-btn{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:4px 12px;border-radius:var(--r);border:1px solid rgba(240,80,80,0.3);background:rgba(240,80,80,0.08);color:#f08080;cursor:pointer;transition:all .12s;letter-spacing:0.04em}
+  .notif-status{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:3px 8px;border-radius:3px}
+  .notif-status.accepted{background:rgba(54,201,176,0.1);color:var(--teal)}
+  .notif-status.declined{background:rgba(255,255,255,0.05);color:var(--faint)}
+  .bell-empty{padding:2rem;text-align:center;color:var(--faint);font-size:12px}
 
   /* PAGES */
   .page{display:none}
@@ -80,7 +99,7 @@
   .card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .2s ease}
   .card:hover::before{transform:scaleX(1)}
   .card-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px}
-  .avi{width:38px;height:38px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px;flex-shrink:0;letter-spacing:-0.02em}
+  .avi{width:38px;height:38px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px;flex-shrink:0}
   .card-info{flex:1;min-width:0}
   .card-name{font-size:13px;font-weight:600;color:var(--white);letter-spacing:-0.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:1px}
   .card-role{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -96,52 +115,87 @@
   .tag-ai{background:rgba(240,80,80,0.1);color:#f08080;border:1px solid rgba(240,80,80,0.15)}
   .card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border)}
   .card-meta-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-  .meta-chip{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;padding:2px 6px;border-radius:3px;border:1px solid var(--border);color:var(--faint)}
+  .meta-chip{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.05em;text-transform:uppercase;padding:2px 6px;border-radius:3px;border:1px solid var(--border);color:var(--faint)}
   .track-chip{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:2px 7px;border-radius:3px}
   .need-row{font-size:10px;color:var(--faint);margin-bottom:10px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
   .need-tag{font-family:'IBM Plex Mono',monospace;font-size:9px;padding:1px 5px;border-radius:3px;border:1px solid var(--border);color:var(--muted);background:var(--bg3)}
   .card-actions{display:flex;gap:5px}
-  .invite-btn{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0.04em;padding:4px 10px;border-radius:var(--r);border:1px solid rgba(212,245,60,0.25);background:var(--accent-dim);color:var(--accent);cursor:pointer;transition:all .12s;text-transform:uppercase}
+  .invite-btn{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0.04em;padding:4px 10px;border-radius:var(--r);border:1px solid rgba(212,245,60,0.25);background:var(--accent-dim);color:var(--accent);cursor:pointer;text-transform:uppercase;transition:all .12s}
   .invite-btn:hover{background:rgba(212,245,60,0.16)}
   .invite-btn.sent{color:var(--teal);background:rgba(54,201,176,0.08);border-color:rgba(54,201,176,0.2);cursor:default}
   .invite-btn:disabled{opacity:.4;cursor:default}
-  .msg-btn{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0.04em;padding:4px 10px;border-radius:var(--r);border:1px solid rgba(91,156,246,0.25);background:rgba(91,156,246,0.08);color:#7ab0f8;cursor:pointer;transition:all .12s;text-transform:uppercase}
+  .msg-btn{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0.04em;padding:4px 10px;border-radius:var(--r);border:1px solid rgba(91,156,246,0.25);background:rgba(91,156,246,0.08);color:#7ab0f8;cursor:pointer;text-transform:uppercase;transition:all .12s}
   .msg-btn:hover{background:rgba(91,156,246,0.14)}
-  .edit-btn{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0.04em;padding:4px 10px;border-radius:var(--r);border:1px solid rgba(212,245,60,0.25);background:var(--accent-dim);color:var(--accent);cursor:pointer;transition:all .12s;text-transform:uppercase}
-  .del-btn{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0.04em;padding:4px 10px;border-radius:var(--r);border:1px solid rgba(240,80,80,0.25);background:rgba(240,80,80,0.08);color:#f08080;cursor:pointer;transition:all .12s;text-transform:uppercase}
+  .edit-btn{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0.04em;padding:4px 10px;border-radius:var(--r);border:1px solid rgba(212,245,60,0.25);background:var(--accent-dim);color:var(--accent);cursor:pointer;text-transform:uppercase;transition:all .12s}
+  .del-btn{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0.04em;padding:4px 10px;border-radius:var(--r);border:1px solid rgba(240,80,80,0.25);background:rgba(240,80,80,0.08);color:#f08080;cursor:pointer;text-transform:uppercase;transition:all .12s}
 
   /* SKELETON */
   .skeleton{background:var(--bg2);padding:1.2rem}
   .skel-line{height:12px;border-radius:3px;background:var(--bg3);margin-bottom:8px;animation:shimmer 1.4s infinite}
   @keyframes shimmer{0%,100%{opacity:.4}50%{opacity:.8}}
 
-  /* INBOX PAGE */
-  .inbox-page{max-width:1300px;margin:0 auto;padding:1.5rem 1.75rem 4rem;display:grid;grid-template-columns:280px 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;min-height:600px}
-  .inbox-sidebar{background:var(--bg2);overflow-y:auto}
-  .inbox-header{padding:1rem;border-bottom:1px solid var(--border);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--faint)}
-  .convo-item{padding:12px 1rem;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s}
-  .convo-item:hover{background:var(--bg3)}
-  .convo-item.active{background:var(--bg3);border-left:2px solid var(--accent)}
-  .convo-name{font-size:13px;font-weight:600;color:var(--white);margin-bottom:2px}
-  .convo-preview{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .convo-unread{display:inline-block;background:var(--accent);color:#0a0a0a;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:6px}
-  .chat-area{background:var(--bg2);display:flex;flex-direction:column}
+  /* TEAMS PAGE */
+  .teams-page{max-width:1300px;margin:0 auto;padding:1.5rem 1.75rem 4rem}
+  .page-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+  .page-nav-title{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--white)}
+  .back-link{font-size:12px;color:var(--muted);cursor:pointer;font-family:'IBM Plex Mono',monospace}
+  .back-link:hover{color:var(--white)}
+
+  /* TEAM CHAT */
+  .team-layout{display:grid;grid-template-columns:240px 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;min-height:640px}
+  .team-list{background:var(--bg2);overflow-y:auto}
+  .team-list-header{padding:1rem;border-bottom:1px solid var(--border);font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--faint)}
+  .team-item{padding:12px 1rem;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;display:flex;align-items:center;gap:10px}
+  .team-item:hover{background:var(--bg3)}
+  .team-item.active{background:var(--bg3);border-left:2px solid var(--accent)}
+  .team-item-info{flex:1;min-width:0}
+  .team-item-name{font-size:12px;font-weight:600;color:var(--white);margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .team-item-role{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .team-unread{background:var(--red);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;flex-shrink:0}
+
+  /* CHAT PANEL */
+  .chat-panel{background:var(--bg2);display:flex;flex-direction:column}
   .chat-header{padding:1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
-  .chat-name{font-size:13px;font-weight:600;color:var(--white)}
-  .chat-role{font-size:11px;color:var(--muted)}
-  .chat-messages{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:8px;min-height:400px;max-height:500px}
-  .chat-empty{display:flex;align-items:center;justify-content:center;height:100%;color:var(--faint);font-size:12px;font-family:'IBM Plex Mono',monospace}
-  .msg-bubble{max-width:70%;padding:8px 12px;border-radius:8px;font-size:13px;line-height:1.5}
+  .chat-partner-name{font-size:13px;font-weight:600;color:var(--white)}
+  .chat-partner-role{font-size:11px;color:var(--muted)}
+
+  /* TABS */
+  .chat-tabs{display:flex;border-bottom:1px solid var(--border);background:var(--bg3)}
+  .chat-tab{flex:1;padding:9px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--faint);background:transparent;border:none;cursor:pointer;transition:all .12s;border-bottom:2px solid transparent}
+  .chat-tab:hover{color:var(--muted)}
+  .chat-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+  /* MESSAGES TAB */
+  .tab-content{display:none;flex:1;flex-direction:column}
+  .tab-content.active{display:flex}
+  .chat-messages{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:6px;max-height:400px}
+  .chat-empty{display:flex;align-items:center;justify-content:center;height:200px;color:var(--faint);font-size:12px;font-family:'IBM Plex Mono',monospace}
+  .msg-row{display:flex;flex-direction:column}
+  .msg-bubble{max-width:68%;padding:8px 12px;border-radius:8px;font-size:13px;line-height:1.5;word-break:break-word}
   .msg-bubble.mine{background:var(--accent-dim);border:1px solid rgba(212,245,60,0.15);color:var(--white);align-self:flex-end;border-bottom-right-radius:2px}
   .msg-bubble.theirs{background:var(--bg3);border:1px solid var(--border);color:var(--white);align-self:flex-start;border-bottom-left-radius:2px}
-  .msg-time{font-size:10px;color:var(--faint);font-family:'IBM Plex Mono',monospace;margin-top:3px}
+  .msg-meta{font-size:10px;color:var(--faint);font-family:'IBM Plex Mono',monospace;margin-top:2px}
+  .msg-meta.mine{text-align:right}
   .chat-input-row{padding:1rem;border-top:1px solid var(--border);display:flex;gap:8px}
-  .chat-input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:8px 12px;color:var(--white);font-family:'IBM Plex Sans',sans-serif;font-size:13px;outline:none;transition:border-color .12s}
+  .chat-input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:9px 12px;color:var(--white);font-family:'IBM Plex Sans',sans-serif;font-size:13px;outline:none;transition:border-color .12s;resize:none;max-height:100px}
   .chat-input:focus{border-color:rgba(212,245,60,0.3)}
   .chat-input::placeholder{color:var(--faint)}
-  .chat-send{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;padding:8px 14px;background:var(--accent);border:none;border-radius:var(--r);color:#0a0a0a;cursor:pointer;transition:background .12s;white-space:nowrap}
-  .chat-send:hover{background:var(--accent2)}
-  .no-chat{display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:8px;color:var(--faint);font-size:12px}
+  .send-btn{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;padding:9px 14px;background:var(--accent);border:none;border-radius:var(--r);color:#0a0a0a;cursor:pointer;transition:background .12s;align-self:flex-end;white-space:nowrap}
+  .send-btn:hover{background:var(--accent2)}
+  .send-btn:disabled{opacity:.5;cursor:not-allowed}
+
+  /* DRAFT TAB */
+  .draft-area{flex:1;display:flex;flex-direction:column;padding:1rem;gap:10px}
+  .draft-header{display:flex;align-items:center;justify-content:space-between}
+  .draft-title{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--faint)}
+  .draft-status{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--faint)}
+  .draft-textarea{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px;color:var(--white);font-family:'IBM Plex Sans',sans-serif;font-size:13px;line-height:1.7;outline:none;resize:none;transition:border-color .12s;min-height:360px}
+  .draft-textarea:focus{border-color:rgba(212,245,60,0.3)}
+  .draft-textarea::placeholder{color:var(--faint)}
+  .draft-hint{font-size:11px;color:var(--faint);font-family:'IBM Plex Mono',monospace}
+
+  /* NO TEAM SELECTED */
+  .no-team{display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:8px;color:var(--faint);font-size:12px;font-family:'IBM Plex Mono',monospace}
 
   /* MODALS */
   .overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:1.5rem}
@@ -149,7 +203,7 @@
   .modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r2);padding:1.75rem;width:100%;max-width:460px;max-height:90vh;overflow-y:auto;animation:pop .18s ease}
   @keyframes pop{from{transform:scale(0.97) translateY(8px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
   .modal-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.25rem}
-  .modal-title{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:16px;letter-spacing:-0.01em;color:var(--white);margin-bottom:2px}
+  .modal-title{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:16px;color:var(--white);margin-bottom:2px}
   .modal-sub{font-size:12px;color:var(--muted)}
   .close-btn{width:28px;height:28px;border:1px solid var(--border);border-radius:var(--r);background:transparent;color:var(--muted);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .1s;flex-shrink:0}
   .close-btn:hover{color:var(--white);border-color:var(--border2)}
@@ -174,6 +228,9 @@
   .btn-go:hover{background:var(--accent2)}
   .btn-go:disabled,.btn-cancel:disabled{opacity:.5;cursor:not-allowed}
   .form-error{font-size:11px;color:#f08080;margin-top:6px;font-family:'IBM Plex Mono',monospace}
+  .form-ok{font-size:11px;color:var(--teal);margin-top:6px;font-family:'IBM Plex Mono',monospace}
+  .text-link{font-size:11px;color:var(--muted);cursor:pointer;font-family:'IBM Plex Mono',monospace;text-decoration:underline;background:none;border:none;padding:0}
+  .text-link:hover{color:var(--white)}
 
   /* EMPTY / TOAST */
   .empty{padding:4rem 2rem;text-align:center;color:var(--faint);grid-column:1/-1;background:var(--bg2);font-size:12px}
@@ -181,7 +238,7 @@
   .toast.show{opacity:1;transform:translateY(0)}
   .toast.err{border-color:rgba(240,80,80,0.3);color:#f08080}
 
-  @media(max-width:740px){.layout{grid-template-columns:1fr}.sidebar{position:static}.header{grid-template-columns:1fr}.stats-cluster{display:none}.inbox-page{grid-template-columns:1fr}}
+  @media(max-width:740px){.layout{grid-template-columns:1fr}.sidebar{position:static}.header{grid-template-columns:1fr}.stats-cluster{display:none}.team-layout{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -196,10 +253,22 @@
   <span class="nav-pill">LIVE</span>
   <div class="nav-right">
     <span class="nav-email hidden" id="userEmail"></span>
-    <button class="btn-outline inbox-btn hidden" id="inboxBtn" onclick="showPage('inbox')">
-      INBOX
-      <span class="unread-badge hidden" id="unreadBadge">0</span>
-    </button>
+
+    <!-- BELL -->
+    <div class="bell-wrap hidden" id="bellWrap">
+      <button class="bell-btn" id="bellBtn" onclick="toggleBell()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="bell-badge hidden" id="bellBadge">0</span>
+      </button>
+      <div class="bell-dropdown hidden" id="bellDropdown">
+        <div class="bell-header">Invites</div>
+        <div id="bellList"><div class="bell-empty">No invites yet</div></div>
+      </div>
+    </div>
+
+    <!-- TEAMS BTN -->
+    <button class="btn-outline hidden" id="teamsBtn" onclick="showPage('teams')">MY TEAMS</button>
+
     <button class="btn-outline" id="signinBtn" onclick="openAuthModal('signin')">Sign in</button>
     <button class="btn-outline hidden" id="signoutBtn" onclick="handleSignOut()">Sign out</button>
     <button class="btn-primary hidden" id="postBtn" onclick="openPostModal()">+ Post Profile</button>
@@ -220,7 +289,6 @@
       <div class="stat-cell"><div class="stat-n">6</div><div class="stat-l">Tracks</div></div>
     </div>
   </div>
-
   <div class="layout">
     <aside class="sidebar">
       <div class="sb-section">
@@ -266,7 +334,6 @@
         <button onclick="currentUser ? openPostModal() : openAuthModal('signin')">POST YOUR PROFILE →</button>
       </div>
     </aside>
-
     <div>
       <div class="toolbar">
         <div class="toolbar-left">Showing <strong id="countLabel">— builders</strong></div>
@@ -285,23 +352,49 @@
   </div>
 </div>
 
-<!-- INBOX PAGE -->
-<div class="page" id="inboxPage">
-  <div style="max-width:1300px;margin:0 auto;padding:1.5rem 1.75rem 0;display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
-    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--faint)">← <span style="cursor:pointer;color:var(--muted)" onclick="showPage('home')">back to builders</span></div>
-    <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--white)">INBOX</div>
-    <div style="width:120px"></div>
-  </div>
-  <div style="max-width:1300px;margin:0 auto;padding:0 1.75rem 4rem">
-    <div class="inbox-page">
-      <div class="inbox-sidebar">
-        <div class="inbox-header">Conversations</div>
-        <div id="convList"><div style="padding:2rem;text-align:center;color:var(--faint);font-size:12px">No conversations yet</div></div>
+<!-- TEAMS PAGE -->
+<div class="page" id="teamsPage">
+  <div class="teams-page">
+    <div class="page-nav">
+      <span class="back-link" onclick="showPage('home')">← back to builders</span>
+      <span class="page-nav-title">MY TEAMS</span>
+      <div style="width:120px"></div>
+    </div>
+    <div class="team-layout">
+      <div class="team-list">
+        <div class="team-list-header">Teams</div>
+        <div id="teamList"><div style="padding:2rem;text-align:center;color:var(--faint);font-size:12px">No teams yet</div></div>
       </div>
-      <div class="chat-area" id="chatArea">
-        <div class="no-chat">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          <p>Select a conversation</p>
+      <div class="chat-panel" id="chatPanel">
+        <div class="no-team" id="noTeamMsg">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".3"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <p>Select a team to start chatting</p>
+        </div>
+        <div id="chatContent" style="display:none;flex:1;flex-direction:column;height:100%">
+          <div class="chat-header" id="chatHeader"></div>
+          <div class="chat-tabs">
+            <button class="chat-tab active" id="tabMessages" onclick="switchTab('messages')">MESSAGES</button>
+            <button class="chat-tab" id="tabDraft" onclick="switchTab('draft')">SHARED DRAFT</button>
+          </div>
+          <!-- MESSAGES TAB -->
+          <div class="tab-content active" id="messagesTab">
+            <div class="chat-messages" id="chatMsgs"><div class="chat-empty">Loading...</div></div>
+            <div class="chat-input-row">
+              <textarea class="chat-input" id="chatInput" rows="1" placeholder="Type a message... (Enter to send)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();window.sendMsg()}"></textarea>
+              <button class="send-btn" id="sendBtn" onclick="window.sendMsg()">SEND →</button>
+            </div>
+          </div>
+          <!-- DRAFT TAB -->
+          <div class="tab-content" id="draftTab">
+            <div class="draft-area">
+              <div class="draft-header">
+                <span class="draft-title">Shared Notes & Draft</span>
+                <span class="draft-status" id="draftStatus">—</span>
+              </div>
+              <textarea class="draft-textarea" id="draftContent" placeholder="Start writing shared notes, ideas, links, plans... Both team members can edit this."></textarea>
+              <span class="draft-hint">Auto-saves every 5 seconds · Visible to both team members</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -315,10 +408,16 @@
       <div><div class="modal-title" id="authTitle">Sign in</div><div class="modal-sub" id="authSub">Welcome back to Squadra</div></div>
       <button class="close-btn" onclick="closeAuthModal()">✕</button>
     </div>
-    <div class="field"><div class="field-label">Email <span class="req">*</span></div><input class="f-input" id="authEmail" type="email" placeholder="you@example.com"></div>
-    <div class="field"><div class="field-label">Password <span class="req">*</span></div><input class="f-input" id="authPassword" type="password" placeholder="••••••••"></div>
+    <div id="authForm">
+      <div class="field"><div class="field-label">Email <span class="req">*</span></div><input class="f-input" id="authEmail" type="email" placeholder="you@example.com"></div>
+      <div class="field" id="authPwField"><div class="field-label">Password <span class="req">*</span></div><input class="f-input" id="authPassword" type="password" placeholder="••••••••"></div>
+      <div style="display:flex;justify-content:flex-end;margin-top:-8px;margin-bottom:8px">
+        <button class="text-link hidden" id="forgotLink" onclick="showForgot()">Forgot password?</button>
+      </div>
+    </div>
     <div class="form-error hidden" id="authError"></div>
-    <div class="modal-footer">
+    <div class="form-ok hidden" id="authOk"></div>
+    <div class="modal-footer" id="authFooter">
       <button class="btn-cancel" id="authToggleBtn" onclick="toggleAuthMode()">Create account</button>
       <button class="btn-go" id="authSubmitBtn" onclick="handleAuth()">SIGN IN →</button>
     </div>
@@ -348,29 +447,12 @@
     <div class="divider"></div>
     <div class="field"><div class="field-label">Your skills</div>
       <div class="pick-grid" id="skillPicker">
-        <button class="pick-btn" onclick="tog(this,'Rust')">Rust</button>
-        <button class="pick-btn" onclick="tog(this,'TypeScript')">TypeScript</button>
-        <button class="pick-btn" onclick="tog(this,'React')">React</button>
-        <button class="pick-btn" onclick="tog(this,'Solana')">Solana</button>
-        <button class="pick-btn" onclick="tog(this,'Smart Contracts')">Smart Contracts</button>
-        <button class="pick-btn" onclick="tog(this,'AI/ML')">AI/ML</button>
-        <button class="pick-btn" onclick="tog(this,'UI/UX')">UI/UX</button>
-        <button class="pick-btn" onclick="tog(this,'Product')">Product</button>
-        <button class="pick-btn" onclick="tog(this,'Go-to-market')">Go-to-market</button>
-        <button class="pick-btn" onclick="tog(this,'DeFi Protocols')">DeFi Protocols</button>
-        <button class="pick-btn" onclick="tog(this,'Python')">Python</button>
-        <button class="pick-btn" onclick="tog(this,'DevOps')">DevOps</button>
-        <button class="pick-btn" onclick="tog(this,'Anchor')">Anchor</button>
-        <button class="pick-btn" onclick="tog(this,'Go')">Go</button>
+        <button class="pick-btn" onclick="tog(this,'Rust')">Rust</button><button class="pick-btn" onclick="tog(this,'TypeScript')">TypeScript</button><button class="pick-btn" onclick="tog(this,'React')">React</button><button class="pick-btn" onclick="tog(this,'Solana')">Solana</button><button class="pick-btn" onclick="tog(this,'Smart Contracts')">Smart Contracts</button><button class="pick-btn" onclick="tog(this,'AI/ML')">AI/ML</button><button class="pick-btn" onclick="tog(this,'UI/UX')">UI/UX</button><button class="pick-btn" onclick="tog(this,'Product')">Product</button><button class="pick-btn" onclick="tog(this,'Go-to-market')">Go-to-market</button><button class="pick-btn" onclick="tog(this,'DeFi Protocols')">DeFi Protocols</button><button class="pick-btn" onclick="tog(this,'Python')">Python</button><button class="pick-btn" onclick="tog(this,'DevOps')">DevOps</button><button class="pick-btn" onclick="tog(this,'Anchor')">Anchor</button><button class="pick-btn" onclick="tog(this,'Go')">Go</button>
       </div>
     </div>
     <div class="field" style="margin-top:12px"><div class="field-label">Looking for</div>
       <div class="pick-grid" id="lookPicker">
-        <button class="pick-btn" onclick="togL(this,'Developer')">Developer</button>
-        <button class="pick-btn" onclick="togL(this,'Designer')">Designer</button>
-        <button class="pick-btn" onclick="togL(this,'Business')">Business</button>
-        <button class="pick-btn" onclick="togL(this,'AI/ML Engineer')">AI/ML Engineer</button>
-        <button class="pick-btn" onclick="togL(this,'Solana Expert')">Solana Expert</button>
+        <button class="pick-btn" onclick="togL(this,'Developer')">Developer</button><button class="pick-btn" onclick="togL(this,'Designer')">Designer</button><button class="pick-btn" onclick="togL(this,'Business')">Business</button><button class="pick-btn" onclick="togL(this,'AI/ML Engineer')">AI/ML Engineer</button><button class="pick-btn" onclick="togL(this,'Solana Expert')">Solana Expert</button>
       </div>
     </div>
     <div class="form-error hidden" id="postError"></div>
@@ -402,31 +484,14 @@
     </div>
     <div class="field"><div class="field-label">Bio <span class="req">*</span></div><textarea class="f-textarea" id="eBio"></textarea></div>
     <div class="divider"></div>
-    <div class="field"><div class="field-label">Your skills</div>
+    <div class="field"><div class="field-label">Skills</div>
       <div class="pick-grid" id="editSkillPicker">
-        <button class="pick-btn" onclick="togE(this,'Rust')">Rust</button>
-        <button class="pick-btn" onclick="togE(this,'TypeScript')">TypeScript</button>
-        <button class="pick-btn" onclick="togE(this,'React')">React</button>
-        <button class="pick-btn" onclick="togE(this,'Solana')">Solana</button>
-        <button class="pick-btn" onclick="togE(this,'Smart Contracts')">Smart Contracts</button>
-        <button class="pick-btn" onclick="togE(this,'AI/ML')">AI/ML</button>
-        <button class="pick-btn" onclick="togE(this,'UI/UX')">UI/UX</button>
-        <button class="pick-btn" onclick="togE(this,'Product')">Product</button>
-        <button class="pick-btn" onclick="togE(this,'Go-to-market')">Go-to-market</button>
-        <button class="pick-btn" onclick="togE(this,'DeFi Protocols')">DeFi Protocols</button>
-        <button class="pick-btn" onclick="togE(this,'Python')">Python</button>
-        <button class="pick-btn" onclick="togE(this,'DevOps')">DevOps</button>
-        <button class="pick-btn" onclick="togE(this,'Anchor')">Anchor</button>
-        <button class="pick-btn" onclick="togE(this,'Go')">Go</button>
+        <button class="pick-btn" onclick="togE(this,'Rust')">Rust</button><button class="pick-btn" onclick="togE(this,'TypeScript')">TypeScript</button><button class="pick-btn" onclick="togE(this,'React')">React</button><button class="pick-btn" onclick="togE(this,'Solana')">Solana</button><button class="pick-btn" onclick="togE(this,'Smart Contracts')">Smart Contracts</button><button class="pick-btn" onclick="togE(this,'AI/ML')">AI/ML</button><button class="pick-btn" onclick="togE(this,'UI/UX')">UI/UX</button><button class="pick-btn" onclick="togE(this,'Product')">Product</button><button class="pick-btn" onclick="togE(this,'Go-to-market')">Go-to-market</button><button class="pick-btn" onclick="togE(this,'DeFi Protocols')">DeFi Protocols</button><button class="pick-btn" onclick="togE(this,'Python')">Python</button><button class="pick-btn" onclick="togE(this,'DevOps')">DevOps</button>
       </div>
     </div>
     <div class="field" style="margin-top:12px"><div class="field-label">Looking for</div>
       <div class="pick-grid" id="editLookPicker">
-        <button class="pick-btn" onclick="togEL(this,'Developer')">Developer</button>
-        <button class="pick-btn" onclick="togEL(this,'Designer')">Designer</button>
-        <button class="pick-btn" onclick="togEL(this,'Business')">Business</button>
-        <button class="pick-btn" onclick="togEL(this,'AI/ML Engineer')">AI/ML Engineer</button>
-        <button class="pick-btn" onclick="togEL(this,'Solana Expert')">Solana Expert</button>
+        <button class="pick-btn" onclick="togEL(this,'Developer')">Developer</button><button class="pick-btn" onclick="togEL(this,'Designer')">Designer</button><button class="pick-btn" onclick="togEL(this,'Business')">Business</button><button class="pick-btn" onclick="togEL(this,'AI/ML Engineer')">AI/ML Engineer</button><button class="pick-btn" onclick="togEL(this,'Solana Expert')">Solana Expert</button>
       </div>
     </div>
     <div class="form-error hidden" id="editError"></div>
@@ -441,10 +506,11 @@
 
 <script type="module">
 import {
-  apiSignUp, apiSignIn, apiSignOut, getCurrentUser,
+  apiSignUp, apiSignIn, apiForgotPassword, apiSignOut, getCurrentUser,
   apiGetProfiles, apiPostProfile, apiEditProfile, apiDeleteProfile,
-  apiGetInvites, apiSendInvite,
-  apiGetMessages, apiSendMessage, apiMarkRead, apiGetInbox
+  apiGetSentInvites, apiGetReceivedInvites, apiSendInvite, apiRespondInvite,
+  apiGetTeams, apiGetMessages, apiSendMessage,
+  apiGetDraft, apiSaveDraft
 } from '/js/api.js';
 
 // ── constants ──────────────────────────────────────────
@@ -455,57 +521,42 @@ const SC={Rust:'dev',TypeScript:'dev',React:'dev',Go:'dev',Python:'dev',DevOps:'
 // ── state ──────────────────────────────────────────────
 let allProfiles=[], myInvites=[], selSkills=[], selLooking=[];
 let editSkills=[], editLooking=[], editingProfileId=null;
-let F={track:'all',role:'all',tz:'all'}, authMode='signin';
-let activeConvoUserId=null, pollInterval=null, lastMsgTime=null;
-window.currentUser = getCurrentUser();
+let F={track:'all',role:'all',tz:'all'}, authMode='signin', isForgot=false;
+let activeTeamId=null, activeTab='messages', pollInterval=null, draftInterval=null;
+let lastMsgTime=null, lastDraftSave=null, draftDirty=false;
+window.currentUser=getCurrentUser();
 
 // ── helpers ────────────────────────────────────────────
 const ini=n=>n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
 const aviColor=id=>{let h=0;for(let c of id)h=(h*31+c.charCodeAt(0))&0xffffffff;return AVI[Math.abs(h)%AVI.length]};
 const sc=s=>SC[s]||'biz';
 const ts=t=>TS[t]||'background:rgba(255,255,255,0.05);color:#7a7870;border:1px solid rgba(255,255,255,0.08)';
-const fmtTime=s=>{const d=new Date(s+'Z');return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})};
+const fmtTime=s=>{try{const d=new Date(s.includes('T')?s:s+' UTC');return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}catch{return ''}};
 
 // ── pages ──────────────────────────────────────────────
-window.showPage = (page) => {
+window.showPage=page=>{
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById(page+'Page').classList.add('active');
-  if(page==='inbox') loadInbox();
+  if(page==='teams') loadTeams();
+  closeBell();
 };
 
 // ── card ───────────────────────────────────────────────
 function cardHTML(b) {
   const av=aviColor(b.id), isOwn=window.currentUser?.id===b.user_id, invited=myInvites.includes(b.id);
   const tzS=(b.timezone||'').replace('Europe / Africa','EU/AF').replace('Asia / Pacific','AS/PAC');
-  const actions = isOwn
-    ? `<div class="card-actions">
-         <button class="edit-btn" onclick="openEditModal('${b.id}')">EDIT</button>
-         <button class="del-btn" onclick="window.deleteMyProfile('${b.id}')">DEL</button>
-       </div>`
-    : `<div class="card-actions">
-         <button class="invite-btn ${invited?'sent':''}" id="ib-${b.id}" onclick="window.handleInvite('${b.id}',this)">${invited?'✓ SENT':'INVITE'}</button>
-         ${window.currentUser ? `<button class="msg-btn" onclick="startChat('${b.user_id}','${b.name}','${b.role}')">MSG</button>` : ''}
-       </div>`;
+  const actions=isOwn
+    ?`<div class="card-actions"><button class="edit-btn" onclick="openEditModal('${b.id}')">EDIT</button><button class="del-btn" onclick="window.deleteMyProfile('${b.id}')">DEL</button></div>`
+    :`<div class="card-actions"><button class="invite-btn ${invited?'sent':''}" id="ib-${b.id}" onclick="window.handleInvite('${b.id}',this)">${invited?'✓ SENT':'INVITE'}</button></div>`;
   return `<div class="card">
-    <div class="card-head">
-      <div class="avi" style="background:${av.bg};color:${av.color}">${ini(b.name)}</div>
-      <div class="card-info"><div class="card-name">${b.name}</div><div class="card-role">${b.role}</div></div>
-      <div class="online-dot ${b.is_active?'':'off'}"></div>
-    </div>
+    <div class="card-head"><div class="avi" style="background:${av.bg};color:${av.color}">${ini(b.name)}</div><div class="card-info"><div class="card-name">${b.name}</div><div class="card-role">${b.role}</div></div><div class="online-dot ${b.is_active?'':'off'}"></div></div>
     <div class="need-row">needs: ${(b.looking_for||[]).map(r=>`<span class="need-tag">${r}</span>`).join('')}</div>
     <p class="card-bio">${b.bio}</p>
     <div class="card-tags">${(b.skills||[]).map(s=>`<span class="tag tag-${sc(s)}">${s}</span>`).join('')}</div>
-    <div class="card-footer">
-      <div class="card-meta-row">
-        <span class="meta-chip">${tzS}</span>
-        <span class="track-chip" style="${ts(b.track)}">${(b.track||'').toUpperCase()}</span>
-      </div>
-      ${actions}
-    </div>
+    <div class="card-footer"><div class="card-meta-row"><span class="meta-chip">${tzS}</span><span class="track-chip" style="${ts(b.track)}">${(b.track||'').toUpperCase()}</span></div>${actions}</div>
   </div>`;
 }
 
-// ── render ─────────────────────────────────────────────
 function render() {
   const q=document.getElementById('searchInput').value.toLowerCase();
   const sort=document.getElementById('sortSel').value;
@@ -521,24 +572,17 @@ function render() {
 }
 window.render=render;
 
-window.setF=(type,val,el)=>{
-  F[type]=val;
-  const map={track:'trackList',role:'roleList',tz:'tzList'};
-  document.querySelectorAll(`#${map[type]} .filter-item`).forEach(i=>i.classList.remove('active'));
-  el.classList.add('active'); render();
-};
+window.setF=(type,val,el)=>{F[type]=val;const map={track:'trackList',role:'roleList',tz:'tzList'};document.querySelectorAll(`#${map[type]} .filter-item`).forEach(i=>i.classList.remove('active'));el.classList.add('active');render()};
 
-// ── load ───────────────────────────────────────────────
 async function load() {
   try {
-    [allProfiles, myInvites]=await Promise.all([apiGetProfiles(), window.currentUser?apiGetInvites():Promise.resolve([])]);
+    [allProfiles,myInvites]=await Promise.all([apiGetProfiles(),window.currentUser?apiGetSentInvites():Promise.resolve([])]);
     const countries=new Set(allProfiles.map(p=>p.country).filter(Boolean));
     document.getElementById('sBuilders').textContent=allProfiles.length;
     document.getElementById('sCountries').textContent=countries.size;
     render();
-  } catch(e) {
-    document.getElementById('grid').innerHTML=`<div class="empty"><p>Failed to load profiles.</p></div>`;
-  }
+    if(window.currentUser) loadBell();
+  } catch(e){document.getElementById('grid').innerHTML=`<div class="empty"><p>Failed to load profiles.</p></div>`;}
 }
 
 // ── invite ─────────────────────────────────────────────
@@ -546,145 +590,219 @@ window.handleInvite=async(profileId,btn)=>{
   if(!window.currentUser){openAuthModal('signin');return}
   if(btn.classList.contains('sent')) return;
   btn.disabled=true;
-  try {
-    await apiSendInvite(profileId);
-    myInvites.push(profileId); btn.classList.add('sent'); btn.textContent='✓ SENT';
-    toast(`Invite sent — they'll receive an email notification`);
-  } catch(e){toast(e.message,true); btn.disabled=false;}
+  try{await apiSendInvite(profileId);myInvites.push(profileId);btn.classList.add('sent');btn.textContent='✓ SENT';toast('Invite sent — they\'ll be notified by email');}
+  catch(e){toast(e.message,true);btn.disabled=false;}
 };
 
 window.deleteMyProfile=async(id)=>{
   if(!confirm('Delete your profile?')) return;
-  try {
-    await apiDeleteProfile(id);
-    allProfiles=allProfiles.filter(p=>p.id!==id);
-    document.getElementById('sBuilders').textContent=allProfiles.length;
-    render(); toast('Profile deleted');
-  } catch(e){toast(e.message,true);}
+  try{await apiDeleteProfile(id);allProfiles=allProfiles.filter(p=>p.id!==id);document.getElementById('sBuilders').textContent=allProfiles.length;render();toast('Profile deleted');}
+  catch(e){toast(e.message,true);}
 };
 
-// ── messaging ──────────────────────────────────────────
-window.startChat=(userId,name,role)=>{
-  if(!window.currentUser){openAuthModal('signin');return}
-  showPage('inbox');
-  setTimeout(()=>openConvo(userId,name,role), 100);
-};
-
-async function loadInbox() {
+// ── bell / invites ─────────────────────────────────────
+async function loadBell() {
   if(!window.currentUser) return;
   try {
-    const convos=await apiGetInbox();
-    const list=document.getElementById('convList');
-    if(!convos.length){list.innerHTML='<div style="padding:2rem;text-align:center;color:var(--faint);font-size:12px">No conversations yet</div>';return;}
-    list.innerHTML=convos.map(c=>`
-      <div class="convo-item ${activeConvoUserId===c.other_id?'active':''}" onclick="openConvo('${c.other_id}','${c.other_name||'Builder'}','${c.other_role||''}')">
-        <div class="convo-name">${c.other_name||'Builder'} ${c.unread_count>0?`<span class="convo-unread">${c.unread_count}</span>`:''}</div>
-        <div class="convo-preview">${c.last_body||''}</div>
+    const invites=await apiGetReceivedInvites();
+    const pending=invites.filter(i=>i.status==='pending');
+    const badge=document.getElementById('bellBadge');
+    if(pending.length){badge.textContent=pending.length;badge.classList.remove('hidden');}
+    else badge.classList.add('hidden');
+
+    const list=document.getElementById('bellList');
+    if(!invites.length){list.innerHTML='<div class="bell-empty">No invites yet</div>';return;}
+    list.innerHTML=invites.map(inv=>`
+      <div class="invite-notif" id="notif-${inv.id}">
+        <div class="notif-name">${inv.from_name||'Unknown builder'}</div>
+        <div class="notif-role">${inv.from_role||''}</div>
+        ${inv.status==='pending'
+          ?`<div class="notif-actions">
+              <button class="accept-btn" onclick="respondInvite('${inv.id}','accept')">ACCEPT</button>
+              <button class="decline-btn" onclick="respondInvite('${inv.id}','decline')">DECLINE</button>
+            </div>`
+          :`<span class="notif-status ${inv.status}">${inv.status.toUpperCase()}</span>`}
       </div>`).join('');
-    const total=convos.reduce((s,c)=>s+parseInt(c.unread_count||0),0);
-    updateUnreadBadge(total);
   } catch(e){}
 }
 
-async function openConvo(userId,name,role) {
-  activeConvoUserId=userId; lastMsgTime=null;
-  if(pollInterval) clearInterval(pollInterval);
+window.toggleBell=()=>{
+  const dd=document.getElementById('bellDropdown');
+  dd.classList.toggle('hidden');
+  if(!dd.classList.contains('hidden')) loadBell();
+};
+function closeBell(){document.getElementById('bellDropdown')?.classList.add('hidden');}
+document.addEventListener('click',e=>{if(!document.getElementById('bellWrap')?.contains(e.target)) closeBell();});
 
-  const chat=document.getElementById('chatArea');
-  chat.innerHTML=`
-    <div class="chat-header">
-      <div class="avi" style="width:32px;height:32px;font-size:11px;border-radius:5px;background:rgba(91,156,246,0.15);color:#7ab0f8;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-weight:600">${ini(name)}</div>
-      <div><div class="chat-name">${name}</div><div class="chat-role">${role}</div></div>
-    </div>
-    <div class="chat-messages" id="chatMsgs"><div class="chat-empty">Loading...</div></div>
-    <div class="chat-input-row">
-      <input class="chat-input" id="chatInput" placeholder="Type a message..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();window.sendMsg()}">
-      <button class="chat-send" onclick="window.sendMsg()">SEND →</button>
-    </div>`;
+window.respondInvite=async(id,action)=>{
+  try{
+    const result=await apiRespondInvite(id,action);
+    if(action==='accept'){toast('Invite accepted — team formed! 🎉 Check My Teams.');await loadBell();await loadTeams();}
+    else{toast('Invite declined');await loadBell();}
+  }catch(e){toast(e.message,true);}
+};
 
-  await loadMessages(userId);
-  await apiMarkRead(userId);
-  loadInbox();
+// poll bell every 30s
+setInterval(()=>{if(window.currentUser) loadBell();},30000);
 
-  pollInterval=setInterval(async()=>{
-    await loadMessages(userId, true);
-  }, 5000);
+// ── TEAMS + CHAT ───────────────────────────────────────
+async function loadTeams() {
+  if(!window.currentUser) return;
+  try {
+    const teams=await apiGetTeams();
+    const list=document.getElementById('teamList');
+    if(!teams.length){list.innerHTML='<div style="padding:2rem;text-align:center;color:var(--faint);font-size:12px">No teams yet.<br>Accept an invite to form a team.</div>';return;}
+    list.innerHTML=teams.map(t=>{
+      const av=aviColor(t.partner_user_id);
+      return `<div class="team-item ${activeTeamId===t.team_id?'active':''}" onclick="openTeamChat('${t.team_id}','${t.partner_name}','${t.partner_role}','${t.partner_user_id}')">
+        <div class="avi" style="width:32px;height:32px;font-size:11px;border-radius:5px;background:${av.bg};color:${av.color};flex-shrink:0">${ini(t.partner_name)}</div>
+        <div class="team-item-info"><div class="team-item-name">${t.partner_name}${t.unread>0?` <span class="team-unread">${t.unread}</span>`:''}</div><div class="team-item-role">${t.partner_role||''}</div></div>
+      </div>`;
+    }).join('');
+  }catch(e){console.error(e);}
 }
 
-async function loadMessages(userId, onlyNew=false) {
-  try {
-    const msgs=await apiGetMessages(userId, onlyNew?lastMsgTime:null);
-    if(!msgs.length && !onlyNew){
-      document.getElementById('chatMsgs').innerHTML='<div class="chat-empty">No messages yet — say hello!</div>';
-      return;
-    }
-    if(!msgs.length) return;
+async function openTeamChat(teamId,partnerName,partnerRole,partnerUserId) {
+  // clear previous intervals
+  if(pollInterval) clearInterval(pollInterval);
+  if(draftInterval) clearInterval(draftInterval);
+  activeTeamId=teamId; lastMsgTime=null; draftDirty=false;
 
+  document.getElementById('noTeamMsg').style.display='none';
+  const cc=document.getElementById('chatContent');
+  cc.style.display='flex'; cc.style.flexDirection='column'; cc.style.flex='1';
+
+  // header
+  const av=aviColor(partnerUserId);
+  document.getElementById('chatHeader').innerHTML=`
+    <div class="avi" style="width:36px;height:36px;font-size:12px;border-radius:6px;background:${av.bg};color:${av.color}">${ini(partnerName)}</div>
+    <div><div class="chat-partner-name">${partnerName}</div><div class="chat-partner-role">${partnerRole}</div></div>`;
+
+  // update team list active state
+  document.querySelectorAll('.team-item').forEach(el=>el.classList.remove('active'));
+  event?.currentTarget?.classList?.add('active');
+
+  switchTab('messages');
+  await loadMessages(false);
+  await loadDraft();
+
+  // poll messages every 4s
+  pollInterval=setInterval(()=>loadMessages(true), 4000);
+  // poll draft every 8s for updates from partner
+  draftInterval=setInterval(()=>syncDraft(), 8000);
+}
+
+window.switchTab=tab=>{
+  activeTab=tab;
+  document.getElementById('tabMessages').classList.toggle('active',tab==='messages');
+  document.getElementById('tabDraft').classList.toggle('active',tab==='draft');
+  document.getElementById('messagesTab').classList.toggle('active',tab==='messages');
+  document.getElementById('draftTab').classList.toggle('active',tab==='draft');
+  if(tab==='draft') loadDraft();
+};
+
+async function loadMessages(onlyNew=false) {
+  if(!activeTeamId) return;
+  try {
+    const msgs=await apiGetMessages(activeTeamId, onlyNew?lastMsgTime:null);
+    if(!msgs.length&&!onlyNew){document.getElementById('chatMsgs').innerHTML='<div class="chat-empty">No messages yet — say hello!</div>';return;}
+    if(!msgs.length) return;
     lastMsgTime=msgs[msgs.length-1].created_at;
     const container=document.getElementById('chatMsgs');
-    const isBottom=container.scrollHeight-container.scrollTop-container.clientHeight<60;
-
-    if(onlyNew){
-      msgs.forEach(m=>{
-        const div=document.createElement('div');
-        div.innerHTML=msgHTML(m);
-        container.appendChild(div.firstChild);
-      });
-    } else {
-      container.innerHTML=msgs.map(msgHTML).join('');
-    }
-    if(!onlyNew||isBottom) container.scrollTop=container.scrollHeight;
-  } catch(e){}
+    const atBottom=container.scrollHeight-container.scrollTop-container.clientHeight<80;
+    if(onlyNew){msgs.forEach(m=>{const d=document.createElement('div');d.innerHTML=msgHTML(m);container.appendChild(d.firstChild);});}
+    else container.innerHTML=msgs.map(msgHTML).join('');
+    if(!onlyNew||atBottom) container.scrollTop=container.scrollHeight;
+    loadTeams(); // refresh unread counts
+  }catch(e){}
 }
 
 function msgHTML(m) {
   const mine=m.from_user_id===window.currentUser?.id;
-  return `<div>
-    <div class="msg-bubble ${mine?'mine':'theirs'}">${m.body}</div>
-    <div class="msg-time" style="text-align:${mine?'right':'left'}">${fmtTime(m.created_at)}</div>
+  return `<div class="msg-row">
+    <div class="msg-bubble ${mine?'mine':'theirs'}">${escHtml(m.body)}</div>
+    <div class="msg-meta ${mine?'mine':''}">${m.from_name||''} · ${fmtTime(m.created_at)}</div>
   </div>`;
 }
+
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 
 window.sendMsg=async()=>{
   const input=document.getElementById('chatInput');
   const body=input?.value?.trim();
-  if(!body||!activeConvoUserId) return;
-  input.value='';
-  try {
-    const msg=await apiSendMessage(activeConvoUserId, body);
+  if(!body||!activeTeamId) return;
+  const btn=document.getElementById('sendBtn');
+  input.value=''; btn.disabled=true;
+  try{
+    const msg=await apiSendMessage(activeTeamId,body);
     lastMsgTime=msg.created_at;
     const container=document.getElementById('chatMsgs');
-    const div=document.createElement('div');
-    div.innerHTML=msgHTML(msg);
-    container.appendChild(div.firstChild);
+    const d=document.createElement('div');d.innerHTML=msgHTML(msg);container.appendChild(d.firstChild);
     container.scrollTop=container.scrollHeight;
-    loadInbox();
-  } catch(e){toast(e.message,true);}
+    loadTeams();
+  }catch(e){toast(e.message,true);input.value=body;}
+  finally{btn.disabled=false;}
 };
 
-function updateUnreadBadge(count) {
-  const badge=document.getElementById('unreadBadge');
-  if(count>0){badge.textContent=count;badge.classList.remove('hidden');}
-  else badge.classList.add('hidden');
+// ── DRAFT ──────────────────────────────────────────────
+let _draftContent='';
+
+async function loadDraft() {
+  if(!activeTeamId) return;
+  try{
+    const d=await apiGetDraft(activeTeamId);
+    _draftContent=d.content||'';
+    document.getElementById('draftContent').value=_draftContent;
+    updateDraftStatus(d.updated_at);
+  }catch(e){}
 }
 
-// poll unread count every 30s when on home page
-setInterval(async()=>{
-  if(!window.currentUser) return;
-  try {
-    const convos=await apiGetInbox();
-    const total=convos.reduce((s,c)=>s+parseInt(c.unread_count||0),0);
-    updateUnreadBadge(total);
-  } catch(e){}
-}, 30000);
+async function syncDraft() {
+  if(!activeTeamId||activeTab!=='draft') return;
+  try{
+    const d=await apiGetDraft(activeTeamId);
+    const el=document.getElementById('draftContent');
+    // only update if we didn't make the last change
+    if(d.updated_by&&d.updated_by!==window.currentUser?.id&&d.content!==_draftContent){
+      const pos=el.selectionStart;
+      el.value=d.content; _draftContent=d.content;
+      el.setSelectionRange(pos,pos);
+      updateDraftStatus(d.updated_at,true);
+    }
+  }catch(e){}
+}
+
+async function saveDraft() {
+  if(!activeTeamId||!draftDirty) return;
+  const content=document.getElementById('draftContent').value;
+  try{
+    await apiSaveDraft(activeTeamId,content);
+    _draftContent=content; draftDirty=false;
+    updateDraftStatus(new Date().toISOString());
+  }catch(e){document.getElementById('draftStatus').textContent='save failed';}
+}
+
+function updateDraftStatus(ts,fromPartner=false){
+  if(!ts){document.getElementById('draftStatus').textContent='—';return;}
+  const t=fmtTime(ts);
+  document.getElementById('draftStatus').textContent=fromPartner?`partner updated · ${t}`:`saved · ${t}`;
+}
+
+document.getElementById('draftContent').addEventListener('input',()=>{
+  draftDirty=true;
+  document.getElementById('draftStatus').textContent='unsaved...';
+});
+// autosave every 5s
+setInterval(saveDraft,5000);
 
 // ── nav ────────────────────────────────────────────────
-function updateNav() {
+function updateNav(){
   const u=window.currentUser;
   document.getElementById('signinBtn').classList.toggle('hidden',!!u);
   document.getElementById('signoutBtn').classList.toggle('hidden',!u);
   document.getElementById('postBtn').classList.toggle('hidden',!u);
-  document.getElementById('inboxBtn').classList.toggle('hidden',!u);
+  document.getElementById('bellWrap').classList.toggle('hidden',!u);
+  document.getElementById('teamsBtn').classList.toggle('hidden',!u);
   document.getElementById('userEmail').classList.toggle('hidden',!u);
   if(u) document.getElementById('userEmail').textContent=u.email;
 }
@@ -692,36 +810,60 @@ function updateNav() {
 window.handleSignOut=()=>{
   apiSignOut(); window.currentUser=null; myInvites=[];
   if(pollInterval) clearInterval(pollInterval);
+  if(draftInterval) clearInterval(draftInterval);
   updateNav(); render(); showPage('home'); toast('Signed out');
 };
 
 // ── auth modal ─────────────────────────────────────────
-window.openAuthModal=(mode='signin')=>{authMode=mode;updateAuthModal();document.getElementById('authOverlay').classList.add('open')};
+window.openAuthModal=(mode='signin')=>{authMode=mode;isForgot=false;updateAuthModal();document.getElementById('authOverlay').classList.add('open')};
 window.closeAuthModal=()=>document.getElementById('authOverlay').classList.remove('open');
-window.toggleAuthMode=()=>{authMode=authMode==='signin'?'signup':'signin';updateAuthModal()};
+window.toggleAuthMode=()=>{authMode=authMode==='signin'?'signup':'signin';isForgot=false;updateAuthModal()};
+window.showForgot=()=>{isForgot=true;updateAuthModal()};
 
 function updateAuthModal(){
+  document.getElementById('authError').classList.add('hidden');
+  document.getElementById('authOk').classList.add('hidden');
+  if(isForgot){
+    document.getElementById('authTitle').textContent='Forgot password';
+    document.getElementById('authSub').textContent='Enter your email to receive a reset link';
+    document.getElementById('authPwField').classList.add('hidden');
+    document.getElementById('forgotLink').classList.add('hidden');
+    document.getElementById('authToggleBtn').textContent='Back to sign in';
+    document.getElementById('authSubmitBtn').textContent='SEND RESET LINK →';
+    return;
+  }
   const s=authMode==='signin';
   document.getElementById('authTitle').textContent=s?'Sign in':'Create account';
   document.getElementById('authSub').textContent=s?'Welcome back to Squadra':'Join Squadra and find your team';
+  document.getElementById('authPwField').classList.remove('hidden');
+  document.getElementById('forgotLink').classList.toggle('hidden',!s);
   document.getElementById('authToggleBtn').textContent=s?'Create account':'Sign in instead';
   document.getElementById('authSubmitBtn').textContent=s?'SIGN IN →':'CREATE ACCOUNT →';
-  document.getElementById('authError').classList.add('hidden');
 }
 
 window.handleAuth=async()=>{
   const email=document.getElementById('authEmail').value.trim();
   const password=document.getElementById('authPassword').value;
   const errEl=document.getElementById('authError');
+  const okEl=document.getElementById('authOk');
   const btn=document.getElementById('authSubmitBtn');
-  errEl.classList.add('hidden'); btn.disabled=true;
+  errEl.classList.add('hidden'); okEl.classList.add('hidden'); btn.disabled=true;
+
+  if(isForgot){
+    btn.textContent='SENDING...';
+    try{await apiForgotPassword(email);okEl.textContent='Reset link sent — check your email.';okEl.classList.remove('hidden');}
+    catch(e){errEl.textContent=e.message;errEl.classList.remove('hidden');}
+    finally{btn.disabled=false;btn.textContent='SEND RESET LINK →';}
+    return;
+  }
+
   btn.textContent=authMode==='signin'?'SIGNING IN...':'CREATING...';
-  try {
+  try{
     window.currentUser=authMode==='signin'?await apiSignIn(email,password):await apiSignUp(email,password);
     updateNav(); closeAuthModal();
-    myInvites=await apiGetInvites();
-    render(); toast(authMode==='signin'?'Welcome back!':'Account created!');
-  } catch(e){errEl.textContent=e.message;errEl.classList.remove('hidden');}
+    myInvites=await apiGetSentInvites();
+    loadBell(); render(); toast(authMode==='signin'?'Welcome back!':'Account created!');
+  }catch(e){errEl.textContent=e.message;errEl.classList.remove('hidden');}
   finally{btn.disabled=false;updateAuthModal();}
 };
 
@@ -732,46 +874,32 @@ window.tog=(btn,s)=>{btn.classList.toggle('on');selSkills=btn.classList.contains
 window.togL=(btn,s)=>{btn.classList.toggle('on');selLooking=btn.classList.contains('on')?[...selLooking,s]:selLooking.filter(x=>x!==s)};
 
 window.submitProfile=async()=>{
-  const name=document.getElementById('pName').value.trim();
-  const role=document.getElementById('pRole').value.trim();
-  const track=document.getElementById('pTrack').value;
-  const tz=document.getElementById('pTz').value;
-  const bio=document.getElementById('pBio').value.trim();
-  const errEl=document.getElementById('postError');
-  const btn=document.getElementById('postSubmitBtn');
+  const name=document.getElementById('pName').value.trim(),role=document.getElementById('pRole').value.trim(),track=document.getElementById('pTrack').value,tz=document.getElementById('pTz').value,bio=document.getElementById('pBio').value.trim();
+  const errEl=document.getElementById('postError'),btn=document.getElementById('postSubmitBtn');
   errEl.classList.add('hidden');
   if(!name||!role||!track||!tz||!bio){errEl.textContent='Fill in all required fields';errEl.classList.remove('hidden');return}
   if(!selSkills.length){errEl.textContent='Select at least one skill';errEl.classList.remove('hidden');return}
-  btn.disabled=true; btn.textContent='POSTING...';
-  try {
+  btn.disabled=true;btn.textContent='POSTING...';
+  try{
     const p=await apiPostProfile({name,role,track,timezone:tz,bio,skills:[...selSkills],lookingFor:selLooking.length?[...selLooking]:['Developer']});
-    allProfiles.unshift(p);
-    document.getElementById('sBuilders').textContent=allProfiles.length;
-    closePostModal(); render(); toast(`Profile posted — welcome, ${name.split(' ')[0]}.`);
+    allProfiles.unshift(p);document.getElementById('sBuilders').textContent=allProfiles.length;
+    closePostModal();render();toast(`Welcome to Squadra, ${name.split(' ')[0]}.`);
     ['pName','pRole','pBio'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('pTrack').value=''; document.getElementById('pTz').value='';
-    selSkills=[]; selLooking=[]; document.querySelectorAll('#skillPicker .pick-btn, #lookPicker .pick-btn').forEach(b=>b.classList.remove('on'));
-  } catch(e){errEl.textContent=e.message;errEl.classList.remove('hidden');}
+    document.getElementById('pTrack').value='';document.getElementById('pTz').value='';
+    selSkills=[];selLooking=[];document.querySelectorAll('#skillPicker .pick-btn,#lookPicker .pick-btn').forEach(b=>b.classList.remove('on'));
+  }catch(e){errEl.textContent=e.message;errEl.classList.remove('hidden');}
   finally{btn.disabled=false;btn.textContent='POST TO SQUADRA →';}
 };
 
 // ── edit modal ─────────────────────────────────────────
-window.openEditModal=(profileId)=>{
-  const p=allProfiles.find(x=>x.id===profileId);
-  if(!p) return;
-  editingProfileId=profileId;
-  editSkills=[...p.skills]; editLooking=[...p.looking_for];
-  document.getElementById('eName').value=p.name;
-  document.getElementById('eRole').value=p.role;
-  document.getElementById('eTrack').value=p.track;
-  document.getElementById('eTz').value=p.timezone;
+window.openEditModal=id=>{
+  const p=allProfiles.find(x=>x.id===id);if(!p) return;
+  editingProfileId=id;editSkills=[...p.skills];editLooking=[...p.looking_for];
+  document.getElementById('eName').value=p.name;document.getElementById('eRole').value=p.role;
+  document.getElementById('eTrack').value=p.track;document.getElementById('eTz').value=p.timezone;
   document.getElementById('eBio').value=p.bio;
-  document.querySelectorAll('#editSkillPicker .pick-btn').forEach(b=>{
-    b.classList.toggle('on', editSkills.includes(b.textContent));
-  });
-  document.querySelectorAll('#editLookPicker .pick-btn').forEach(b=>{
-    b.classList.toggle('on', editLooking.includes(b.textContent));
-  });
+  document.querySelectorAll('#editSkillPicker .pick-btn').forEach(b=>b.classList.toggle('on',editSkills.includes(b.textContent)));
+  document.querySelectorAll('#editLookPicker .pick-btn').forEach(b=>b.classList.toggle('on',editLooking.includes(b.textContent)));
   document.getElementById('editError').classList.add('hidden');
   document.getElementById('editOverlay').classList.add('open');
 };
@@ -780,22 +908,16 @@ window.togE=(btn,s)=>{btn.classList.toggle('on');editSkills=btn.classList.contai
 window.togEL=(btn,s)=>{btn.classList.toggle('on');editLooking=btn.classList.contains('on')?[...editLooking,s]:editLooking.filter(x=>x!==s)};
 
 window.submitEdit=async()=>{
-  const name=document.getElementById('eName').value.trim();
-  const role=document.getElementById('eRole').value.trim();
-  const track=document.getElementById('eTrack').value;
-  const tz=document.getElementById('eTz').value;
-  const bio=document.getElementById('eBio').value.trim();
-  const errEl=document.getElementById('editError');
-  const btn=document.getElementById('editSubmitBtn');
+  const name=document.getElementById('eName').value.trim(),role=document.getElementById('eRole').value.trim(),track=document.getElementById('eTrack').value,tz=document.getElementById('eTz').value,bio=document.getElementById('eBio').value.trim();
+  const errEl=document.getElementById('editError'),btn=document.getElementById('editSubmitBtn');
   errEl.classList.add('hidden');
   if(!name||!role||!track||!tz||!bio){errEl.textContent='Fill in all required fields';errEl.classList.remove('hidden');return}
-  btn.disabled=true; btn.textContent='SAVING...';
-  try {
+  btn.disabled=true;btn.textContent='SAVING...';
+  try{
     const updated=await apiEditProfile(editingProfileId,{name,role,track,timezone:tz,bio,skills:editSkills,lookingFor:editLooking});
-    const idx=allProfiles.findIndex(p=>p.id===editingProfileId);
-    if(idx>=0) allProfiles[idx]=updated;
-    closeEditModal(); render(); toast('Profile updated!');
-  } catch(e){errEl.textContent=e.message;errEl.classList.remove('hidden');}
+    const idx=allProfiles.findIndex(p=>p.id===editingProfileId);if(idx>=0)allProfiles[idx]=updated;
+    closeEditModal();render();toast('Profile updated!');
+  }catch(e){errEl.textContent=e.message;errEl.classList.remove('hidden');}
   finally{btn.disabled=false;btn.textContent='SAVE CHANGES →';}
 };
 
@@ -805,11 +927,13 @@ window.submitEdit=async()=>{
 });
 
 // ── toast ──────────────────────────────────────────────
-window.toast=(msg,isErr=false)=>{
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.className='toast show'+(isErr?' err':'');
-  setTimeout(()=>t.className='toast',3200);
-};
+window.toast=(msg,isErr=false)=>{const t=document.getElementById('toast');t.textContent=msg;t.className='toast show'+(isErr?' err':'');setTimeout(()=>t.className='toast',3200)};
+
+// ── check if coming from reset password redirect ──────
+if(new URLSearchParams(window.location.search).get('signin')==='1'){
+  history.replaceState({},'','/');
+  setTimeout(()=>openAuthModal('signin'),300);
+}
 
 // ── init ───────────────────────────────────────────────
 updateNav();

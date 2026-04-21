@@ -1,16 +1,11 @@
-// public/js/api.js — all fetch calls to Vercel API routes
+// public/js/api.js
 
 const BASE = '/api';
-
-function token() { return localStorage.getItem('sq_token'); }
+const token = () => localStorage.getItem('sq_token');
 
 async function req(path, options = {}) {
   const res = await fetch(`${BASE}${path}`, {
-    headers: {
-      'Content-Type':  'application/json',
-      ...(token() ? { Authorization: `Bearer ${token()}` } : {}),
-      ...(options.headers || {}),
-    },
+    headers: { 'Content-Type': 'application/json', ...(token() ? { Authorization: `Bearer ${token()}` } : {}), ...(options.headers || {}) },
     ...options,
     body: options.body ? JSON.stringify(options.body) : undefined,
   });
@@ -19,77 +14,46 @@ async function req(path, options = {}) {
   return data;
 }
 
-// ── Auth ──────────────────────────────────────────────
+// Auth
 export async function apiSignUp(email, password) {
-  const data = await req('/auth?action=signup', { method: 'POST', body: { email, password } });
-  localStorage.setItem('sq_token', data.token);
-  localStorage.setItem('sq_user',  JSON.stringify(data.user));
-  return data.user;
+  const d = await req('/auth?action=signup', { method: 'POST', body: { email, password } });
+  localStorage.setItem('sq_token', d.token); localStorage.setItem('sq_user', JSON.stringify(d.user)); return d.user;
 }
-
 export async function apiSignIn(email, password) {
-  const data = await req('/auth?action=signin', { method: 'POST', body: { email, password } });
-  localStorage.setItem('sq_token', data.token);
-  localStorage.setItem('sq_user',  JSON.stringify(data.user));
-  return data.user;
+  const d = await req('/auth?action=signin', { method: 'POST', body: { email, password } });
+  localStorage.setItem('sq_token', d.token); localStorage.setItem('sq_user', JSON.stringify(d.user)); return d.user;
 }
-
-export function apiSignOut() {
-  localStorage.removeItem('sq_token');
-  localStorage.removeItem('sq_user');
+export async function apiForgotPassword(email) {
+  return req('/auth?action=forgot', { method: 'POST', body: { email } });
 }
-
-export function getCurrentUser() {
-  try { return JSON.parse(localStorage.getItem('sq_user')); } catch { return null; }
+export async function apiResetPassword(token, password) {
+  return req('/auth?action=reset', { method: 'POST', body: { token, password } });
 }
+export function apiSignOut() { localStorage.removeItem('sq_token'); localStorage.removeItem('sq_user'); }
+export function getCurrentUser() { try { return JSON.parse(localStorage.getItem('sq_user')); } catch { return null; } }
 
-// ── Profiles ──────────────────────────────────────────
-export async function apiGetProfiles() {
-  const data = await req('/profiles');
-  return data.profiles;
-}
+// Profiles
+export async function apiGetProfiles() { return (await req('/profiles')).profiles; }
+export async function apiPostProfile(p) { return (await req('/profiles', { method: 'POST', body: p })).profile; }
+export async function apiEditProfile(id, p) { return (await req(`/profiles?id=${id}`, { method: 'PUT', body: p })).profile; }
+export async function apiDeleteProfile(id) { await req(`/profiles?id=${id}`, { method: 'DELETE' }); }
 
-export async function apiPostProfile(profile) {
-  const data = await req('/profiles', { method: 'POST', body: profile });
-  return data.profile;
-}
+// Invites
+export async function apiGetSentInvites() { return (await req('/invites')).invites; }
+export async function apiGetReceivedInvites() { return (await req('/invites?type=inbox')).invites; }
+export async function apiSendInvite(toProfileId) { await req('/invites', { method: 'POST', body: { toProfileId } }); }
+export async function apiRespondInvite(id, action) { return req(`/invites?id=${id}&action=${action}`, { method: 'PUT' }); }
 
-export async function apiEditProfile(id, profile) {
-  const data = await req(`/profiles?id=${id}`, { method: 'PUT', body: profile });
-  return data.profile;
-}
+// Teams
+export async function apiGetTeams() { return (await req('/teams')).teams; }
 
-export async function apiDeleteProfile(id) {
-  await req(`/profiles?id=${id}`, { method: 'DELETE' });
-}
-
-// ── Invites ───────────────────────────────────────────
-export async function apiGetInvites() {
-  const data = await req('/invites');
-  return data.invites;
-}
-
-export async function apiSendInvite(toProfileId) {
-  await req('/invites', { method: 'POST', body: { toProfileId } });
-}
-
-// ── Messages ──────────────────────────────────────────
-export async function apiGetMessages(withUserId, after = null) {
+// Messages
+export async function apiGetMessages(teamId, after = null) {
   const q = after ? `&after=${encodeURIComponent(after)}` : '';
-  const data = await req(`/messages?withUserId=${withUserId}${q}`);
-  return data.messages;
+  return (await req(`/messages?teamId=${teamId}${q}`)).messages;
 }
+export async function apiSendMessage(teamId, body) { return (await req('/messages', { method: 'POST', body: { teamId, body } })).message; }
 
-export async function apiSendMessage(toUserId, body) {
-  const data = await req('/messages', { method: 'POST', body: { toUserId, body } });
-  return data.message;
-}
-
-export async function apiMarkRead(withUserId) {
-  await req(`/messages?withUserId=${withUserId}`, { method: 'PUT' });
-}
-
-export async function apiGetInbox() {
-  const data = await req('/inbox');
-  return data.conversations;
-}
+// Draft
+export async function apiGetDraft(teamId) { return (await req(`/draft?teamId=${teamId}`)).draft; }
+export async function apiSaveDraft(teamId, content) { return req(`/draft?teamId=${teamId}`, { method: 'PUT', body: { content } }); }

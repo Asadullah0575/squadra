@@ -1,7 +1,6 @@
 // api/messages.js (CommonJS)
-// GET  /api/messages?withUserId=...&after=...  — fetch thread
-// POST /api/messages                           — send message
-// PUT  /api/messages?withUserId=...            — mark thread as read
+// GET  /api/messages?teamId=&after=  — fetch messages in a team chat
+// POST /api/messages                 — send message to team
 
 const { getDB, verifyToken, getToken, cors, ok, err } = require('./_lib');
 const { randomUUID } = require('crypto');
@@ -15,62 +14,56 @@ module.exports = async function handler(req, res) {
 
   const db = getDB();
 
-  // ── GET thread ───────────────────────────────────────
+  // verify user is in this team
+  async function verifyTeamMember(teamId) {
+    const r = await db.execute({
+      sql: 'SELECT id FROM teams WHERE id = ? AND (user1_id = ? OR user2_id = ?)',
+      args: [teamId, user.sub, user.sub],
+    });
+    return r.rows.length > 0;
+  }
+
+  // ── GET messages ─────────────────────────────────────
   if (req.method === 'GET') {
-    const { withUserId, after } = req.query;
-    if (!withUserId) return err(res, 'withUserId is required');
+    const { teamId, after } = req.query;
+    if (!teamId) return err(res, 'teamId required');
+    if (!await verifyTeamMember(teamId)) return err(res, 'Not a team member', 403);
 
-    let sql = `
-      SELECT m.*, 
-             uf.name as from_name,
-             ut.name as to_name
-      FROM messages m
-      LEFT JOIN profiles uf ON uf.user_id = m.from_user_id
-      LEFT JOIN profiles ut ON ut.user_id = m.to_user_id
-      WHERE (
-        (m.from_user_id = ? AND m.to_user_id = ?) OR
-        (m.from_user_id = ? AND m.to_user_id = ?)
-      )
-    `;
-    const args = [user.sub, withUserId, withUserId, user.sub];
-
-    if (after) {
-      sql += ' AND m.created_at > ?';
-      args.push(after);
-    }
-
+    let sql = `SELECT m.*, p.name as from_name
+               FROM messages m
+               LEFT JOIN profiles p ON p.user_id = m.from_user_id
+               WHERE m.team_id = ?`;
+    const args = [teamId];
+    if (after) { sql += ' AND m.created_at > ?'; args.push(after); }
     sql += ' ORDER BY m.created_at ASC LIMIT 100';
 
     const result = await db.execute({ sql, args });
+
+    // mark as read
+    await db.execute({
+      sql: 'UPDATE messages SET read = 1 WHERE team_id = ? AND from_user_id != ? AND read = 0',
+      args: [teamId, user.sub],
+    });
+
     return ok(res, { messages: result.rows });
   }
 
-  // ── POST send message ────────────────────────────────
+  // ── POST send ────────────────────────────────────────
   if (req.method === 'POST') {
-    const { toUserId, body } = req.body || {};
-    if (!toUserId || !body?.trim()) return err(res, 'toUserId and body are required');
-    if (body.length > 1000) return err(res, 'Message too long (max 1000 chars)');
+    const { teamId, body } = req.body || {};
+    if (!teamId || !body?.trim()) return err(res, 'teamId and body required');
+    if (body.length > 2000) return err(res, 'Message too long');
+    if (!await verifyTeamMember(teamId)) return err(res, 'Not a team member', 403);
 
     const id = randomUUID();
+    const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
     await db.execute({
-      sql:  'INSERT INTO messages (id, from_user_id, to_user_id, body) VALUES (?, ?, ?, ?)',
-      args: [id, user.sub, toUserId, body.trim()],
+      sql: 'INSERT INTO messages (id, team_id, from_user_id, body, created_at) VALUES (?, ?, ?, ?, ?)',
+      args: [id, teamId, user.sub, body.trim(), now],
     });
 
     const row = await db.execute({ sql: 'SELECT * FROM messages WHERE id = ?', args: [id] });
     return ok(res, { message: row.rows[0] }, 201);
-  }
-
-  // ── PUT mark as read ─────────────────────────────────
-  if (req.method === 'PUT') {
-    const { withUserId } = req.query;
-    if (!withUserId) return err(res, 'withUserId is required');
-
-    await db.execute({
-      sql:  'UPDATE messages SET read = 1 WHERE to_user_id = ? AND from_user_id = ? AND read = 0',
-      args: [user.sub, withUserId],
-    });
-    return ok(res, { message: 'Marked as read' });
   }
 
   return err(res, 'Method not allowed', 405);
