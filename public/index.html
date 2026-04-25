@@ -576,7 +576,7 @@ window.setF=(type,val,el)=>{F[type]=val;const map={track:'trackList',role:'roleL
 
 async function load() {
   try {
-    [allProfiles,myInvites]=await Promise.all([apiGetProfiles(),window.currentUser?apiGetSentInvites():Promise.resolve([])]);
+    allProfiles=await apiGetProfiles();
     const countries=new Set(allProfiles.map(p=>p.country).filter(Boolean));
     document.getElementById('sBuilders').textContent=allProfiles.length;
     document.getElementById('sCountries').textContent=countries.size;
@@ -861,7 +861,7 @@ window.handleAuth=async()=>{
   try{
     window.currentUser=authMode==='signin'?await apiSignIn(email,password):await apiSignUp(email,password);
     updateNav(); closeAuthModal();
-    myInvites=await apiGetSentInvites();
+
     loadBell(); render(); toast(authMode==='signin'?'Welcome back!':'Account created!');
   }catch(e){errEl.textContent=e.message;errEl.classList.remove('hidden');}
   finally{btn.disabled=false;updateAuthModal();}

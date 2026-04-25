@@ -97,14 +97,25 @@ module.exports = async function handler(req, res) {
     const sender = await db.execute({ sql: 'SELECT name FROM profiles WHERE user_id = ?', args: [user.sub] });
     const fromName = sender.rows[0]?.name || 'A builder';
 
-    try {
+    // Allow re-inviting — upsert back to pending
+    const existing = await db.execute({
+      sql: 'SELECT id FROM invites WHERE from_user_id = ? AND to_profile_id = ?',
+      args: [user.sub, toProfileId],
+    });
+    if (existing.rows.length) {
       await db.execute({
-        sql: 'INSERT INTO invites (id, from_user_id, to_user_id, to_profile_id) VALUES (?, ?, ?, ?)',
-        args: [randomUUID(), user.sub, toUser.uid, toProfileId],
+        sql: "UPDATE invites SET status = 'pending', to_user_id = ?, created_at = datetime('now') WHERE from_user_id = ? AND to_profile_id = ?",
+        args: [toUser.uid, user.sub, toProfileId],
       });
-    } catch (e) {
-      if (e.message.includes('UNIQUE')) return err(res, 'Already invited');
-      return err(res, e.message, 500);
+    } else {
+      try {
+        await db.execute({
+          sql: 'INSERT INTO invites (id, from_user_id, to_user_id, to_profile_id) VALUES (?, ?, ?, ?)',
+          args: [randomUUID(), user.sub, toUser.uid, toProfileId],
+        });
+      } catch (e) {
+        return err(res, e.message, 500);
+      }
     }
 
     // send email notification
