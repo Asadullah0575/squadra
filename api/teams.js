@@ -13,22 +13,43 @@ module.exports = async function handler(req, res) {
 
   const db = getDB();
 
-  const result = await db.execute({
-    sql: `SELECT t.id as team_id, t.created_at,
-                 p.id as partner_profile_id,
-                 p.name as partner_name,
-                 p.role as partner_role,
-                 p.user_id as partner_user_id,
-                 (SELECT COUNT(*) FROM messages m WHERE m.team_id = t.id AND m.from_user_id != ? AND m.read = 0) as unread
-          FROM teams t
-          JOIN profiles p ON p.user_id = CASE
-            WHEN t.user1_id = ? THEN t.user2_id
-            ELSE t.user1_id
-          END
-          WHERE t.user1_id = ? OR t.user2_id = ?
-          ORDER BY t.created_at DESC`,
-    args: [user.sub, user.sub, user.sub, user.sub],
-  });
+  try {
+    // Get all teams the user belongs to
+    const teamsResult = await db.execute({
+      sql: `SELECT * FROM teams WHERE user1_id = ? OR user2_id = ? ORDER BY created_at DESC`,
+      args: [user.sub, user.sub],
+    });
 
-  return ok(res, { teams: result.rows });
+    if (!teamsResult.rows.length) return ok(res, { teams: [] });
+
+    // For each team, get partner profile and unread count
+    const teams = [];
+    for (const team of teamsResult.rows) {
+      const partnerId = team.user1_id === user.sub ? team.user2_id : team.user1_id;
+
+      const profileResult = await db.execute({
+        sql: `SELECT id, name, role, user_id FROM profiles WHERE user_id = ?`,
+        args: [partnerId],
+      });
+
+      const unreadResult = await db.execute({
+        sql: `SELECT COUNT(*) as n FROM messages WHERE team_id = ? AND from_user_id != ? AND read = 0`,
+        args: [team.id, user.sub],
+      });
+
+      teams.push({
+        team_id:            team.id,
+        created_at:         team.created_at,
+        partner_user_id:    partnerId,
+        partner_profile_id: profileResult.rows[0]?.id || null,
+        partner_name:       profileResult.rows[0]?.name || 'Unknown',
+        partner_role:       profileResult.rows[0]?.role || '',
+        unread:             unreadResult.rows[0]?.n || 0,
+      });
+    }
+
+    return ok(res, { teams });
+  } catch (e) {
+    return err(res, e.message, 500);
+  }
 };
