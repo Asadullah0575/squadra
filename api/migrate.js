@@ -68,6 +68,10 @@ module.exports = async function handler(req, res) {
   `);
 
   // Backfill to_user_id for existing invites using profile's user_id
+  await run('messages.team_id', 'ALTER TABLE messages ADD COLUMN team_id TEXT');
+  await run('messages.from_user_id', 'ALTER TABLE messages ADD COLUMN from_user_id TEXT');
+  await run('messages.body', 'ALTER TABLE messages ADD COLUMN body TEXT');
+  await run('messages.read', 'ALTER TABLE messages ADD COLUMN read INTEGER DEFAULT 0');
   await run('backfill to_user_id', `
     UPDATE invites
     SET to_user_id = (

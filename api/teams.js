@@ -32,10 +32,13 @@ module.exports = async function handler(req, res) {
         args: [partnerId],
       });
 
-      const unreadResult = await db.execute({
-        sql: `SELECT COUNT(*) as n FROM messages WHERE team_id = ? AND from_user_id != ? AND read = 0`,
-        args: [team.id, user.sub],
-      });
+      let unreadResult = { rows: [{ n: 0 }] };
+      try {
+        unreadResult = await db.execute({
+          sql: `SELECT COUNT(*) as n FROM messages WHERE team_id = ? AND from_user_id != ? AND read = 0`,
+          args: [team.id, user.sub],
+        });
+      } catch(e) {}
 
       teams.push({
         team_id:            team.id,
