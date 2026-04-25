@@ -35,12 +35,17 @@ module.exports = async function handler(req, res) {
   await run('users.reset_expiry',   'ALTER TABLE users ADD COLUMN reset_expiry TEXT');
 
   // Create new tables if they don't exist
+  // Drop and recreate teams/messages/drafts with correct schema
+  await run('drop drafts',   'DROP TABLE IF EXISTS drafts');
+  await run('drop messages', 'DROP TABLE IF EXISTS messages');
+  await run('drop teams',    'DROP TABLE IF EXISTS teams');
+
   await run('teams table', `
     CREATE TABLE IF NOT EXISTS teams (
       id         TEXT PRIMARY KEY,
-      user1_id   TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      user2_id   TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      invite_id  TEXT REFERENCES invites(id),
+      user1_id   TEXT NOT NULL,
+      user2_id   TEXT NOT NULL,
+      invite_id  TEXT,
       created_at TEXT DEFAULT (datetime('now')),
       UNIQUE(user1_id, user2_id)
     )
@@ -49,8 +54,8 @@ module.exports = async function handler(req, res) {
   await run('messages table', `
     CREATE TABLE IF NOT EXISTS messages (
       id           TEXT PRIMARY KEY,
-      team_id      TEXT NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
-      from_user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      team_id      TEXT NOT NULL,
+      from_user_id TEXT NOT NULL,
       body         TEXT NOT NULL,
       read         INTEGER DEFAULT 0,
       created_at   TEXT DEFAULT (datetime('now'))
@@ -60,10 +65,10 @@ module.exports = async function handler(req, res) {
   await run('drafts table', `
     CREATE TABLE IF NOT EXISTS drafts (
       id         TEXT PRIMARY KEY,
-      team_id    TEXT NOT NULL UNIQUE REFERENCES teams(id) ON DELETE CASCADE,
+      team_id    TEXT NOT NULL UNIQUE,
       content    TEXT DEFAULT '',
       updated_at TEXT DEFAULT (datetime('now')),
-      updated_by TEXT REFERENCES users(id)
+      updated_by TEXT
     )
   `);
 
