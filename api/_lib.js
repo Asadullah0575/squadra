@@ -5,7 +5,10 @@ const { SignJWT, jwtVerify } = require('jose');
 const bcrypt = require('bcryptjs');
 
 function getDB() {
-  const url = (process.env.TURSO_DATABASE_URL || '').replace('libsql://', 'https://');
+  let url = process.env.TURSO_DATABASE_URL || '';
+  // Use libsql:// protocol — https:// causes schema changes not to persist
+  if (url.startsWith('https://')) url = url.replace('https://', 'libsql://');
+  if (!url.startsWith('libsql://')) url = 'libsql://' + url;
   return createClient({
     url,
     authToken: process.env.TURSO_AUTH_TOKEN,
