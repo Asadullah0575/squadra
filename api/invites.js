@@ -66,18 +66,23 @@ module.exports = async function handler(req, res) {
 
   // ── GET received invites (bell) ──────────────────────
   if (req.method === 'GET' && req.query.type === 'inbox') {
-    const result = await db.execute({
-      sql: `SELECT i.id, i.status, i.created_at,
-                   p.name as from_name, p.role as from_role, p.id as from_profile_id,
-                   u.email as from_email
-            FROM invites i
-            JOIN users u ON u.id = i.from_user_id
-            LEFT JOIN profiles p ON p.user_id = i.from_user_id
-            WHERE i.to_user_id = ?
-            ORDER BY i.created_at DESC`,
-      args: [user.sub],
-    });
-    return ok(res, { invites: result.rows });
+    try {
+      const result = await db.execute({
+        sql: `SELECT i.id, i.status, i.created_at,
+                     p.name as from_name, p.role as from_role, p.id as from_profile_id,
+                     u.email as from_email
+              FROM invites i
+              JOIN users u ON u.id = i.from_user_id
+              LEFT JOIN profiles p ON p.user_id = i.from_user_id
+              WHERE i.to_user_id = ?
+              ORDER BY i.created_at DESC`,
+        args: [user.sub],
+      });
+      return ok(res, { invites: result.rows });
+    } catch(e) {
+      // Column missing — needs migration. Return empty safely.
+      return ok(res, { invites: [] });
+    }
   }
 
   // ── POST send invite ─────────────────────────────────

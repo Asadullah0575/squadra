@@ -1,0 +1,85 @@
+// api/migrate.js (CommonJS)
+// GET /api/migrate?secret=squadra-init-2026
+// Safely adds missing columns to existing tables
+
+const { getDB, cors, ok, err } = require('./_lib');
+
+module.exports = async function handler(req, res) {
+  cors(res);
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.query.secret !== 'squadra-init-2026') return err(res, 'Forbidden', 403);
+
+  const db = getDB();
+  const results = [];
+
+  async function run(label, sql) {
+    try {
+      await db.execute(sql);
+      results.push({ label, status: 'ok' });
+    } catch (e) {
+      // ignore "duplicate column" errors — means it already exists
+      if (e.message.includes('duplicate column') || e.message.includes('already exists')) {
+        results.push({ label, status: 'already exists' });
+      } else {
+        results.push({ label, status: 'error', error: e.message });
+      }
+    }
+  }
+
+  // Add missing columns to invites
+  await run('invites.to_user_id',   'ALTER TABLE invites ADD COLUMN to_user_id TEXT');
+  await run('invites.status',       "ALTER TABLE invites ADD COLUMN status TEXT DEFAULT 'pending'");
+
+  // Add missing columns to users (for password reset)
+  await run('users.reset_token',    'ALTER TABLE users ADD COLUMN reset_token TEXT');
+  await run('users.reset_expiry',   'ALTER TABLE users ADD COLUMN reset_expiry TEXT');
+
+  // Create new tables if they don't exist
+  await run('teams table', `
+    CREATE TABLE IF NOT EXISTS teams (
+      id         TEXT PRIMARY KEY,
+      user1_id   TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      user2_id   TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      invite_id  TEXT REFERENCES invites(id),
+      created_at TEXT DEFAULT (datetime('now')),
+      UNIQUE(user1_id, user2_id)
+    )
+  `);
+
+  await run('messages table', `
+    CREATE TABLE IF NOT EXISTS messages (
+      id           TEXT PRIMARY KEY,
+      team_id      TEXT NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
+      from_user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      body         TEXT NOT NULL,
+      read         INTEGER DEFAULT 0,
+      created_at   TEXT DEFAULT (datetime('now'))
+    )
+  `);
+
+  await run('drafts table', `
+    CREATE TABLE IF NOT EXISTS drafts (
+      id         TEXT PRIMARY KEY,
+      team_id    TEXT NOT NULL UNIQUE REFERENCES teams(id) ON DELETE CASCADE,
+      content    TEXT DEFAULT '',
+      updated_at TEXT DEFAULT (datetime('now')),
+      updated_by TEXT REFERENCES users(id)
+    )
+  `);
+
+  // Backfill to_user_id for existing invites using profile's user_id
+  await run('backfill to_user_id', `
+    UPDATE invites
+    SET to_user_id = (
+      SELECT p.user_id FROM profiles p WHERE p.id = invites.to_profile_id
+    )
+    WHERE to_user_id IS NULL
+  `);
+
+  // Add indexes
+  await run('idx invites to_user', 'CREATE INDEX IF NOT EXISTS idx_invites_to ON invites(to_user_id, status)');
+  await run('idx messages team',   'CREATE INDEX IF NOT EXISTS idx_messages_team ON messages(team_id, created_at ASC)');
+  await run('idx teams users',     'CREATE INDEX IF NOT EXISTS idx_teams_users ON teams(user1_id, user2_id)');
+
+  return ok(res, { message: 'Migration complete', results });
+};
