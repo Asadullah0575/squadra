@@ -370,7 +370,7 @@
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".3"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           <p>Select a team to start chatting</p>
         </div>
-        <div id="chatContent" style="display:none;flex:1;flex-direction:column;height:100%">
+        <div id="chatContent" class="hidden" style="flex:1;flex-direction:column;height:100%">
           <div class="chat-header" id="chatHeader"></div>
           <div class="chat-tabs">
             <button class="chat-tab active" id="tabMessages" onclick="switchTab('messages')">MESSAGES</button>
@@ -654,7 +654,7 @@ async function loadTeams() {
     if(!teams.length){list.innerHTML='<div style="padding:2rem;text-align:center;color:var(--faint);font-size:12px">No teams yet.<br>Accept an invite to form a team.</div>';return;}
     list.innerHTML=teams.map(t=>{
       const av=aviColor(t.partner_user_id);
-      return `<div class="team-item ${activeTeamId===t.team_id?'active':''}" onclick="openTeamChat('${t.team_id}','${t.partner_name}','${t.partner_role}','${t.partner_user_id}')">
+      return `<div class="team-item ${activeTeamId===t.team_id?'active':''}" data-id="${t.team_id}" onclick="window.openTeamChat('${t.team_id}','${t.partner_name}','${t.partner_role}','${t.partner_user_id}')">
         <div class="avi" style="width:32px;height:32px;font-size:11px;border-radius:5px;background:${av.bg};color:${av.color};flex-shrink:0">${ini(t.partner_name)}</div>
         <div class="team-item-info"><div class="team-item-name">${t.partner_name}${t.unread>0?` <span class="team-unread">${t.unread}</span>`:''}</div><div class="team-item-role">${t.partner_role||''}</div></div>
       </div>`;
@@ -662,33 +662,35 @@ async function loadTeams() {
   }catch(e){console.error(e);}
 }
 
-async function openTeamChat(teamId,partnerName,partnerRole,partnerUserId) {
-  // clear previous intervals
+window.openTeamChat = async function(teamId,partnerName,partnerRole,partnerUserId) {
   if(pollInterval) clearInterval(pollInterval);
   if(draftInterval) clearInterval(draftInterval);
   activeTeamId=teamId; lastMsgTime=null; draftDirty=false;
 
-  document.getElementById('noTeamMsg').style.display='none';
+  // show chat, hide empty state
+  document.getElementById('noTeamMsg').classList.add('hidden');
   const cc=document.getElementById('chatContent');
-  cc.style.display='flex'; cc.style.flexDirection='column'; cc.style.flex='1';
+  cc.classList.remove('hidden');
+  cc.style.display='flex';
+  cc.style.flexDirection='column';
+  cc.style.flex='1';
 
   // header
   const av=aviColor(partnerUserId);
   document.getElementById('chatHeader').innerHTML=`
-    <div class="avi" style="width:36px;height:36px;font-size:12px;border-radius:6px;background:${av.bg};color:${av.color}">${ini(partnerName)}</div>
+    <div class="avi" style="width:36px;height:36px;font-size:12px;border-radius:6px;background:${av.bg};color:${av.color};display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-weight:600">${ini(partnerName)}</div>
     <div><div class="chat-partner-name">${partnerName}</div><div class="chat-partner-role">${partnerRole}</div></div>`;
 
-  // update team list active state
+  // update active state in team list
   document.querySelectorAll('.team-item').forEach(el=>el.classList.remove('active'));
-  event?.currentTarget?.classList?.add('active');
+  const activeItem=document.querySelector(`.team-item[data-id="${teamId}"]`);
+  if(activeItem) activeItem.classList.add('active');
 
   switchTab('messages');
   await loadMessages(false);
   await loadDraft();
 
-  // poll messages every 4s
   pollInterval=setInterval(()=>loadMessages(true), 4000);
-  // poll draft every 8s for updates from partner
   draftInterval=setInterval(()=>syncDraft(), 8000);
 }
 
