@@ -78,6 +78,8 @@ module.exports = async function handler(req, res) {
 
   // Add indexes
   await run('idx invites to_user', 'CREATE INDEX IF NOT EXISTS idx_invites_to ON invites(to_user_id, status)');
+  // run messages index last with a retry after table creation
+  await new Promise(r => setTimeout(r, 500));
   await run('idx messages team',   'CREATE INDEX IF NOT EXISTS idx_messages_team ON messages(team_id, created_at ASC)');
   await run('idx teams users',     'CREATE INDEX IF NOT EXISTS idx_teams_users ON teams(user1_id, user2_id)');
 
