@@ -35,11 +35,6 @@ module.exports = async function handler(req, res) {
   await run('users.reset_expiry',   'ALTER TABLE users ADD COLUMN reset_expiry TEXT');
 
   // Create new tables if they don't exist
-  // Drop and recreate teams/messages/drafts with correct schema
-  await run('drop drafts',   'DROP TABLE IF EXISTS drafts');
-  await run('drop messages', 'DROP TABLE IF EXISTS messages');
-  await run('drop teams',    'DROP TABLE IF EXISTS teams');
-
   await run('teams table', `
     CREATE TABLE IF NOT EXISTS teams (
       id         TEXT PRIMARY KEY,
