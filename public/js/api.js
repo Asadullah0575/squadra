@@ -38,6 +38,9 @@ export async function apiPostProfile(p) { return (await req('/profiles', { metho
 export async function apiEditProfile(id, p) { return (await req(`/profiles?id=${id}`, { method: 'PUT', body: p })).profile; }
 export async function apiDeleteProfile(id) { await req(`/profiles?id=${id}`, { method: 'DELETE' }); }
 
+// Upload
+export async function apiUploadAvatar(image) { return (await req('/upload', { method: 'POST', body: { image } })).url; }
+
 // Invites
 export async function apiGetSentInvites() { return (await req('/invites')).invites; }
 export async function apiGetReceivedInvites() { return (await req('/invites?type=inbox')).invites; }

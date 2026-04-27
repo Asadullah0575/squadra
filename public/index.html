@@ -129,6 +129,24 @@
   .edit-btn{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0.04em;padding:4px 10px;border-radius:var(--r);border:1px solid rgba(212,245,60,0.25);background:var(--accent-dim);color:var(--accent);cursor:pointer;text-transform:uppercase;transition:all .12s}
   .del-btn{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0.04em;padding:4px 10px;border-radius:var(--r);border:1px solid rgba(240,80,80,0.25);background:rgba(240,80,80,0.08);color:#f08080;cursor:pointer;text-transform:uppercase;transition:all .12s}
 
+  /* AVATAR */
+  .avatar-upload{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .avatar-preview{width:64px;height:64px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600}
+  .avatar-preview img{width:100%;height:100%;object-fit:cover}
+  .avatar-upload-btn{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;padding:6px 12px;border:1px solid var(--border2);border-radius:var(--r);background:transparent;color:var(--muted);cursor:pointer;transition:all .12s}
+  .avatar-upload-btn:hover{color:var(--white);border-color:var(--border3)}
+  .avatar-hint{font-size:11px;color:var(--faint)}
+  .social-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .social-input-wrap{position:relative}
+  .social-prefix{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--faint);font-family:'IBM Plex Mono',monospace;pointer-events:none}
+  .social-input{padding-left:28px!important}
+  /* CARD AVATAR */
+  .card-avi-img{width:38px;height:38px;border-radius:6px;object-fit:cover;flex-shrink:0}
+  /* SOCIAL ICONS on card */
+  .social-links{display:flex;gap:6px;margin-top:6px}
+  .social-link{width:22px;height:22px;border-radius:4px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--faint);text-decoration:none;transition:all .12s}
+  .social-link:hover{border-color:var(--border2);color:var(--white)}
+
   /* SKELETON */
   .skeleton{background:var(--bg2);padding:1.2rem}
   .skel-line{height:12px;border-radius:3px;background:var(--bg3);margin-bottom:8px;animation:shimmer 1.4s infinite}
@@ -445,6 +463,34 @@
     </div>
     <div class="field"><div class="field-label">Bio <span class="req">*</span></div><textarea class="f-textarea" id="pBio" placeholder="What are you building? What's your background?"></textarea></div>
     <div class="divider"></div>
+    <!-- AVATAR UPLOAD -->
+    <div class="field">
+      <div class="field-label">Profile Photo</div>
+      <div class="avatar-upload">
+        <div class="avatar-preview" id="pAvatarPreview"><span id="pAvatarInitials">?</span></div>
+        <div>
+          <input type="file" id="pAvatarInput" accept="image/*" style="display:none" onchange="handleAvatarChange('p',this)">
+          <button class="avatar-upload-btn" onclick="document.getElementById('pAvatarInput').click()">Upload photo</button>
+          <div class="avatar-hint" style="margin-top:4px">JPG or PNG, max 750KB</div>
+        </div>
+      </div>
+    </div>
+    <!-- SOCIAL LINKS -->
+    <div class="field">
+      <div class="field-label">Social Links</div>
+      <div class="social-row">
+        <div class="social-input-wrap">
+          <span class="social-prefix">gh/</span>
+          <input class="f-input social-input" id="pGithub" type="text" placeholder="username">
+        </div>
+        <div class="social-input-wrap">
+          <span class="social-prefix">@</span>
+          <input class="f-input social-input" id="pTwitter" type="text" placeholder="username">
+        </div>
+      </div>
+      <input class="f-input" id="pWebsite" type="text" placeholder="https://yoursite.com" style="margin-top:8px">
+    </div>
+    <div class="divider"></div>
     <div class="field"><div class="field-label">Your skills</div>
       <div class="pick-grid" id="skillPicker">
         <button class="pick-btn" onclick="tog(this,'Rust')">Rust</button><button class="pick-btn" onclick="tog(this,'TypeScript')">TypeScript</button><button class="pick-btn" onclick="tog(this,'React')">React</button><button class="pick-btn" onclick="tog(this,'Solana')">Solana</button><button class="pick-btn" onclick="tog(this,'Smart Contracts')">Smart Contracts</button><button class="pick-btn" onclick="tog(this,'AI/ML')">AI/ML</button><button class="pick-btn" onclick="tog(this,'UI/UX')">UI/UX</button><button class="pick-btn" onclick="tog(this,'Product')">Product</button><button class="pick-btn" onclick="tog(this,'Go-to-market')">Go-to-market</button><button class="pick-btn" onclick="tog(this,'DeFi Protocols')">DeFi Protocols</button><button class="pick-btn" onclick="tog(this,'Python')">Python</button><button class="pick-btn" onclick="tog(this,'DevOps')">DevOps</button><button class="pick-btn" onclick="tog(this,'Anchor')">Anchor</button><button class="pick-btn" onclick="tog(this,'Go')">Go</button>
@@ -484,6 +530,31 @@
     </div>
     <div class="field"><div class="field-label">Bio <span class="req">*</span></div><textarea class="f-textarea" id="eBio"></textarea></div>
     <div class="divider"></div>
+    <div class="field">
+      <div class="field-label">Profile Photo</div>
+      <div class="avatar-upload">
+        <div class="avatar-preview" id="eAvatarPreview"><span id="eAvatarInitials">?</span></div>
+        <div>
+          <input type="file" id="eAvatarInput" accept="image/*" style="display:none" onchange="handleAvatarChange('e',this)">
+          <button class="avatar-upload-btn" onclick="document.getElementById('eAvatarInput').click()">Change photo</button>
+        </div>
+      </div>
+    </div>
+    <div class="field">
+      <div class="field-label">Social Links</div>
+      <div class="social-row">
+        <div class="social-input-wrap">
+          <span class="social-prefix">gh/</span>
+          <input class="f-input social-input" id="eGithub" type="text" placeholder="username">
+        </div>
+        <div class="social-input-wrap">
+          <span class="social-prefix">@</span>
+          <input class="f-input social-input" id="eTwitter" type="text" placeholder="username">
+        </div>
+      </div>
+      <input class="f-input" id="eWebsite" type="text" placeholder="https://yoursite.com" style="margin-top:8px">
+    </div>
+    <div class="divider"></div>
     <div class="field"><div class="field-label">Skills</div>
       <div class="pick-grid" id="editSkillPicker">
         <button class="pick-btn" onclick="togE(this,'Rust')">Rust</button><button class="pick-btn" onclick="togE(this,'TypeScript')">TypeScript</button><button class="pick-btn" onclick="togE(this,'React')">React</button><button class="pick-btn" onclick="togE(this,'Solana')">Solana</button><button class="pick-btn" onclick="togE(this,'Smart Contracts')">Smart Contracts</button><button class="pick-btn" onclick="togE(this,'AI/ML')">AI/ML</button><button class="pick-btn" onclick="togE(this,'UI/UX')">UI/UX</button><button class="pick-btn" onclick="togE(this,'Product')">Product</button><button class="pick-btn" onclick="togE(this,'Go-to-market')">Go-to-market</button><button class="pick-btn" onclick="togE(this,'DeFi Protocols')">DeFi Protocols</button><button class="pick-btn" onclick="togE(this,'Python')">Python</button><button class="pick-btn" onclick="togE(this,'DevOps')">DevOps</button>
@@ -510,7 +581,7 @@ import {
   apiGetProfiles, apiPostProfile, apiEditProfile, apiDeleteProfile,
   apiGetSentInvites, apiGetReceivedInvites, apiSendInvite, apiRespondInvite,
   apiGetTeams, apiGetMessages, apiSendMessage,
-  apiGetDraft, apiSaveDraft
+  apiGetDraft, apiSaveDraft, apiUploadAvatar
 } from '/js/api.js';
 
 // ── constants ──────────────────────────────────────────
@@ -520,6 +591,7 @@ const SC={Rust:'dev',TypeScript:'dev',React:'dev',Go:'dev',Python:'dev',DevOps:'
 
 // ── state ──────────────────────────────────────────────
 let allProfiles=[], myInvites=[], selSkills=[], selLooking=[];
+let pAvatarBase64=null, eAvatarBase64=null;
 let editSkills=[], editLooking=[], editingProfileId=null;
 let F={track:'all',role:'all',tz:'all'}, authMode='signin', isForgot=false;
 let activeTeamId=null, activeTab='messages', pollInterval=null, draftInterval=null;
@@ -543,13 +615,22 @@ window.showPage=page=>{
 
 // ── card ───────────────────────────────────────────────
 function cardHTML(b) {
-  const av=aviColor(b.id), isOwn=window.currentUser?.id===b.user_id, invited=myInvites.includes(b.id);
+  const av=aviColor(b.id), isOwn=window.currentUser?.id===b.user_id;
   const tzS=(b.timezone||'').replace('Europe / Africa','EU/AF').replace('Asia / Pacific','AS/PAC');
+  const socialLinks=[];
+  if(b.github)  socialLinks.push(`<a class="social-link" href="https://github.com/${b.github}" target="_blank" title="GitHub"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg></a>`);
+  if(b.twitter) socialLinks.push(`<a class="social-link" href="https://twitter.com/${b.twitter}" target="_blank" title="X/Twitter"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>`);
+  if(b.website) socialLinks.push(`<a class="social-link" href="${b.website.startsWith('http')?b.website:'https://'+b.website}" target="_blank" title="Website"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></a>`);
   const actions=isOwn
     ?`<div class="card-actions"><button class="edit-btn" onclick="openEditModal('${b.id}')">EDIT</button><button class="del-btn" onclick="window.deleteMyProfile('${b.id}')">DEL</button></div>`
-    :`<div class="card-actions"><button class="invite-btn ${invited?'sent':''}" id="ib-${b.id}" onclick="window.handleInvite('${b.id}',this)">${invited?'✓ SENT':'INVITE'}</button></div>`;
+    :`<div class="card-actions"><button class="invite-btn" id="ib-${b.id}" onclick="window.handleInvite('${b.id}',this)">INVITE</button></div>`;
+  const avatarEl=b.avatar_url?`<img class="card-avi-img" src="${b.avatar_url}" alt="${b.name}">`:`<div class="avi" style="background:${av.bg};color:${av.color}">${ini(b.name)}</div>`;
   return `<div class="card">
-    <div class="card-head"><div class="avi" style="background:${av.bg};color:${av.color}">${ini(b.name)}</div><div class="card-info"><div class="card-name">${b.name}</div><div class="card-role">${b.role}</div></div><div class="online-dot ${b.is_active?'':'off'}"></div></div>
+    <div class="card-head">
+      ${avatarEl}
+      <div class="card-info"><div class="card-name">${b.name}</div><div class="card-role">${b.role}</div>${socialLinks.length?`<div class="social-links">${socialLinks.join('')}</div>`:''}</div>
+      <div class="online-dot ${b.is_active?'':'off'}"></div>
+    </div>
     <div class="need-row">needs: ${(b.looking_for||[]).map(r=>`<span class="need-tag">${r}</span>`).join('')}</div>
     <p class="card-bio">${b.bio}</p>
     <div class="card-tags">${(b.skills||[]).map(s=>`<span class="tag tag-${sc(s)}">${s}</span>`).join('')}</div>
@@ -875,19 +956,44 @@ window.closePostModal=()=>document.getElementById('postOverlay').classList.remov
 window.tog=(btn,s)=>{btn.classList.toggle('on');selSkills=btn.classList.contains('on')?[...selSkills,s]:selSkills.filter(x=>x!==s)};
 window.togL=(btn,s)=>{btn.classList.toggle('on');selLooking=btn.classList.contains('on')?[...selLooking,s]:selLooking.filter(x=>x!==s)};
 
+// ── avatar handler ─────────────────────────────────────
+window.handleAvatarChange=(prefix,input)=>{
+  const file=input.files[0];
+  if(!file) return;
+  if(file.size>800000){toast('Image too large. Max 750KB.',true);return;}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const b64=e.target.result;
+    if(prefix==='p'){pAvatarBase64=b64;}
+    else{eAvatarBase64=b64;}
+    const preview=document.getElementById(prefix+'AvatarPreview');
+    preview.innerHTML=`<img src="${b64}" style="width:100%;height:100%;object-fit:cover;border-radius:7px">`;
+  };
+  reader.readAsDataURL(file);
+};
+
 window.submitProfile=async()=>{
   const name=document.getElementById('pName').value.trim(),role=document.getElementById('pRole').value.trim(),track=document.getElementById('pTrack').value,tz=document.getElementById('pTz').value,bio=document.getElementById('pBio').value.trim();
+  const github=document.getElementById('pGithub').value.trim(),twitter=document.getElementById('pTwitter').value.trim(),website=document.getElementById('pWebsite').value.trim();
   const errEl=document.getElementById('postError'),btn=document.getElementById('postSubmitBtn');
   errEl.classList.add('hidden');
   if(!name||!role||!track||!tz||!bio){errEl.textContent='Fill in all required fields';errEl.classList.remove('hidden');return}
   if(!selSkills.length){errEl.textContent='Select at least one skill';errEl.classList.remove('hidden');return}
   btn.disabled=true;btn.textContent='POSTING...';
   try{
-    const p=await apiPostProfile({name,role,track,timezone:tz,bio,skills:[...selSkills],lookingFor:selLooking.length?[...selLooking]:['Developer']});
+    let avatarUrl=null;
+    if(pAvatarBase64){
+      btn.textContent='UPLOADING PHOTO...';
+      try{ avatarUrl=await apiUploadAvatar(pAvatarBase64); }
+      catch(e){ toast('Photo upload failed — profile posted without photo',true); }
+    }
+    const p=await apiPostProfile({name,role,track,timezone:tz,bio,skills:[...selSkills],lookingFor:selLooking.length?[...selLooking]:['Developer'],avatarUrl,github:github||null,twitter:twitter||null,website:website||null});
     allProfiles.unshift(p);document.getElementById('sBuilders').textContent=allProfiles.length;
     closePostModal();render();toast(`Welcome to Squadra, ${name.split(' ')[0]}.`);
-    ['pName','pRole','pBio'].forEach(id=>document.getElementById(id).value='');
+    ['pName','pRole','pBio','pGithub','pTwitter','pWebsite'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('pTrack').value='';document.getElementById('pTz').value='';
+    document.getElementById('pAvatarPreview').innerHTML='<span id="pAvatarInitials">?</span>';
+    pAvatarBase64=null;
     selSkills=[];selLooking=[];document.querySelectorAll('#skillPicker .pick-btn,#lookPicker .pick-btn').forEach(b=>b.classList.remove('on'));
   }catch(e){errEl.textContent=e.message;errEl.classList.remove('hidden');}
   finally{btn.disabled=false;btn.textContent='POST TO SQUADRA →';}
@@ -897,11 +1003,20 @@ window.submitProfile=async()=>{
 window.openEditModal=id=>{
   const p=allProfiles.find(x=>x.id===id);if(!p) return;
   editingProfileId=id;editSkills=[...p.skills];editLooking=[...p.looking_for];
+  eAvatarBase64=null;
   document.getElementById('eName').value=p.name;document.getElementById('eRole').value=p.role;
   document.getElementById('eTrack').value=p.track;document.getElementById('eTz').value=p.timezone;
   document.getElementById('eBio').value=p.bio;
-  document.querySelectorAll('#editSkillPicker .pick-btn').forEach(b=>b.classList.toggle('on',editSkills.includes(b.textContent)));
-  document.querySelectorAll('#editLookPicker .pick-btn').forEach(b=>b.classList.toggle('on',editLooking.includes(b.textContent)));
+  document.getElementById('eGithub').value=p.github||'';
+  document.getElementById('eTwitter').value=p.twitter||'';
+  document.getElementById('eWebsite').value=p.website||'';
+  // show current avatar
+  const preview=document.getElementById('eAvatarPreview');
+  preview.innerHTML=p.avatar_url
+    ?`<img src="${p.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:7px">`
+    :`<span>${ini(p.name)}</span>`;
+  document.querySelectorAll('#editSkillPicker .pick-btn').forEach(b=>b.classList.toggle('on',editSkills.includes(b.textContent.trim())));
+  document.querySelectorAll('#editLookPicker .pick-btn').forEach(b=>b.classList.toggle('on',editLooking.includes(b.textContent.trim())));
   document.getElementById('editError').classList.add('hidden');
   document.getElementById('editOverlay').classList.add('open');
 };
@@ -911,13 +1026,21 @@ window.togEL=(btn,s)=>{btn.classList.toggle('on');editLooking=btn.classList.cont
 
 window.submitEdit=async()=>{
   const name=document.getElementById('eName').value.trim(),role=document.getElementById('eRole').value.trim(),track=document.getElementById('eTrack').value,tz=document.getElementById('eTz').value,bio=document.getElementById('eBio').value.trim();
+  const github=document.getElementById('eGithub').value.trim(),twitter=document.getElementById('eTwitter').value.trim(),website=document.getElementById('eWebsite').value.trim();
   const errEl=document.getElementById('editError'),btn=document.getElementById('editSubmitBtn');
   errEl.classList.add('hidden');
   if(!name||!role||!track||!tz||!bio){errEl.textContent='Fill in all required fields';errEl.classList.remove('hidden');return}
   btn.disabled=true;btn.textContent='SAVING...';
   try{
-    const updated=await apiEditProfile(editingProfileId,{name,role,track,timezone:tz,bio,skills:editSkills,lookingFor:editLooking});
+    let avatarUrl=allProfiles.find(p=>p.id===editingProfileId)?.avatar_url||null;
+    if(eAvatarBase64){
+      btn.textContent='UPLOADING PHOTO...';
+      try{ avatarUrl=await apiUploadAvatar(eAvatarBase64); }
+      catch(e){ toast('Photo upload failed — other changes saved',true); }
+    }
+    const updated=await apiEditProfile(editingProfileId,{name,role,track,timezone:tz,bio,skills:editSkills,lookingFor:editLooking,avatarUrl,github:github||null,twitter:twitter||null,website:website||null});
     const idx=allProfiles.findIndex(p=>p.id===editingProfileId);if(idx>=0)allProfiles[idx]=updated;
+    eAvatarBase64=null;
     closeEditModal();render();toast('Profile updated!');
   }catch(e){errEl.textContent=e.message;errEl.classList.remove('hidden');}
   finally{btn.disabled=false;btn.textContent='SAVE CHANGES →';}

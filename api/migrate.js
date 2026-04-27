@@ -67,11 +67,23 @@ module.exports = async function handler(req, res) {
     )
   `);
 
+  // Add social + photo columns to profiles
+  await run('profiles.avatar_url', 'ALTER TABLE profiles ADD COLUMN avatar_url TEXT');
+  await run('profiles.twitter',    'ALTER TABLE profiles ADD COLUMN twitter TEXT');
+  await run('profiles.github',     'ALTER TABLE profiles ADD COLUMN github TEXT');
+  await run('profiles.website',    'ALTER TABLE profiles ADD COLUMN website TEXT');
+
   // Backfill to_user_id for existing invites using profile's user_id
   await run('messages.team_id', 'ALTER TABLE messages ADD COLUMN team_id TEXT');
   await run('messages.from_user_id', 'ALTER TABLE messages ADD COLUMN from_user_id TEXT');
   await run('messages.body', 'ALTER TABLE messages ADD COLUMN body TEXT');
   await run('messages.read', 'ALTER TABLE messages ADD COLUMN read INTEGER DEFAULT 0');
+  // Add social links and avatar to profiles
+  await run('profiles.avatar_url', 'ALTER TABLE profiles ADD COLUMN avatar_url TEXT');
+  await run('profiles.github',     'ALTER TABLE profiles ADD COLUMN github TEXT');
+  await run('profiles.twitter',    'ALTER TABLE profiles ADD COLUMN twitter TEXT');
+  await run('profiles.website',    'ALTER TABLE profiles ADD COLUMN website TEXT');
+
   await run('backfill to_user_id', `
     UPDATE invites
     SET to_user_id = (
