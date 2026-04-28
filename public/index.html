@@ -735,20 +735,22 @@ async function loadTeams() {
     if(!teams.length){list.innerHTML='<div style="padding:2rem;text-align:center;color:var(--faint);font-size:12px">No teams yet.<br>Accept an invite to form a team.</div>';return;}
     list.innerHTML=teams.map(t=>{
       const av=aviColor(t.partner_user_id);
-      return `<div class="team-item ${activeTeamId===t.team_id?'active':''}" data-id="${t.team_id}" onclick="window.openTeamChat('${t.team_id}','${t.partner_name}','${t.partner_role}','${t.partner_user_id}')">
-        <div class="avi" style="width:32px;height:32px;font-size:11px;border-radius:5px;background:${av.bg};color:${av.color};flex-shrink:0">${ini(t.partner_name)}</div>
+      const avatarEl=t.partner_avatar_url
+        ?`<img src="${t.partner_avatar_url}" style="width:32px;height:32px;border-radius:5px;object-fit:cover;flex-shrink:0">`
+        :`<div class="avi" style="width:32px;height:32px;font-size:11px;border-radius:5px;background:${av.bg};color:${av.color};flex-shrink:0">${ini(t.partner_name)}</div>`;
+      return `<div class="team-item ${activeTeamId===t.team_id?'active':''}" data-id="${t.team_id}" onclick="window.openTeamChat('${t.team_id}','${t.partner_name}','${t.partner_role}','${t.partner_user_id}','${t.partner_avatar_url||''}')">
+        ${avatarEl}
         <div class="team-item-info"><div class="team-item-name">${t.partner_name}${t.unread>0?` <span class="team-unread">${t.unread}</span>`:''}</div><div class="team-item-role">${t.partner_role||''}</div></div>
       </div>`;
     }).join('');
   }catch(e){console.error(e);}
 }
 
-window.openTeamChat = async function(teamId,partnerName,partnerRole,partnerUserId) {
+window.openTeamChat = async function(teamId,partnerName,partnerRole,partnerUserId,partnerAvatar) {
   if(pollInterval) clearInterval(pollInterval);
   if(draftInterval) clearInterval(draftInterval);
   activeTeamId=teamId; lastMsgTime=null; draftDirty=false;
 
-  // show chat, hide empty state
   document.getElementById('noTeamMsg').classList.add('hidden');
   const cc=document.getElementById('chatContent');
   cc.classList.remove('hidden');
@@ -756,13 +758,15 @@ window.openTeamChat = async function(teamId,partnerName,partnerRole,partnerUserI
   cc.style.flexDirection='column';
   cc.style.flex='1';
 
-  // header
+  // header with avatar
   const av=aviColor(partnerUserId);
+  const avatarEl=partnerAvatar
+    ?`<img src="${partnerAvatar}" style="width:36px;height:36px;border-radius:6px;object-fit:cover;flex-shrink:0">`
+    :`<div class="avi" style="width:36px;height:36px;font-size:12px;border-radius:6px;background:${av.bg};color:${av.color}">${ini(partnerName)}</div>`;
   document.getElementById('chatHeader').innerHTML=`
-    <div class="avi" style="width:36px;height:36px;font-size:12px;border-radius:6px;background:${av.bg};color:${av.color};display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-weight:600">${ini(partnerName)}</div>
+    ${avatarEl}
     <div><div class="chat-partner-name">${partnerName}</div><div class="chat-partner-role">${partnerRole}</div></div>`;
 
-  // update active state in team list
   document.querySelectorAll('.team-item').forEach(el=>el.classList.remove('active'));
   const activeItem=document.querySelector(`.team-item[data-id="${teamId}"]`);
   if(activeItem) activeItem.classList.add('active');

@@ -28,7 +28,7 @@ module.exports = async function handler(req, res) {
       const partnerId = team.user1_id === user.sub ? team.user2_id : team.user1_id;
 
       const profileResult = await db.execute({
-        sql: `SELECT id, name, role, user_id FROM profiles WHERE user_id = ?`,
+        sql: `SELECT id, name, role, user_id, avatar_url FROM profiles WHERE user_id = ?`,
         args: [partnerId],
       });
 
@@ -47,6 +47,7 @@ module.exports = async function handler(req, res) {
         partner_profile_id: profileResult.rows[0]?.id || null,
         partner_name:       profileResult.rows[0]?.name || 'Unknown',
         partner_role:       profileResult.rows[0]?.role || '',
+        partner_avatar_url: profileResult.rows[0]?.avatar_url || null,
         unread:             unreadResult.rows[0]?.n || 0,
       });
     }
