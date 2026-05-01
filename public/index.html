@@ -622,10 +622,10 @@ function cardHTML(b) {
   if(b.twitter) socialLinks.push(`<a class="social-link" href="https://twitter.com/${b.twitter}" target="_blank" title="X/Twitter"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>`);
   if(b.website) socialLinks.push(`<a class="social-link" href="${b.website.startsWith('http')?b.website:'https://'+b.website}" target="_blank" title="Website"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></a>`);
   const actions=isOwn
-    ?`<div class="card-actions"><button class="edit-btn" onclick="openEditModal('${b.id}')">EDIT</button><button class="del-btn" onclick="window.deleteMyProfile('${b.id}')">DEL</button></div>`
-    :`<div class="card-actions"><button class="invite-btn" id="ib-${b.id}" onclick="window.handleInvite('${b.id}',this)">INVITE</button></div>`;
+    ?`<div class="card-actions" onclick="event.stopPropagation()"><button class="edit-btn" onclick="openEditModal('${b.id}')">EDIT</button><button class="del-btn" onclick="window.deleteMyProfile('${b.id}')">DEL</button></div>`
+    :`<div class="card-actions" onclick="event.stopPropagation()"><button class="invite-btn" id="ib-${b.id}" onclick="window.handleInvite('${b.id}',this)">INVITE</button></div>`;
   const avatarEl=b.avatar_url?`<img class="card-avi-img" src="${b.avatar_url}" alt="${b.name}">`:`<div class="avi" style="background:${av.bg};color:${av.color}">${ini(b.name)}</div>`;
-  return `<div class="card">
+  return `<div class="card" onclick="window.location.href='/profile.html?id=${b.id}'" style="cursor:pointer">
     <div class="card-head">
       ${avatarEl}
       <div class="card-info"><div class="card-name">${b.name}</div><div class="card-role">${b.role}</div>${socialLinks.length?`<div class="social-links">${socialLinks.join('')}</div>`:''}</div>
