@@ -1,0 +1,7 @@
+{
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.autoIndent": "full",
+  "editor.detectIndentation": true
+}

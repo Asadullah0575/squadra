@@ -57,6 +57,17 @@ export async function apiGetMessages(teamId, after = null) {
 }
 export async function apiSendMessage(teamId, body) { return (await req('/messages', { method: 'POST', body: { teamId, body } })).message; }
 
+// Groups
+export async function apiGetGroups() { return (await req('/groups')).groups; }
+export async function apiCreateGroup(name, memberUserIds) { return (await req('/groups', { method: 'POST', body: { name, memberUserIds } })).group; }
+export async function apiGetGroupMessages(groupId, after=null) {
+  const q = after ? `&after=${encodeURIComponent(after)}` : '';
+  return req(`/groups?id=${groupId}&msgs=1${q}`);
+}
+export async function apiSendGroupMessage(groupId, body) { return (await req(`/groups?id=${groupId}&msg=1`, { method: 'POST', body: { body } })).message; }
+export async function apiAddGroupMember(groupId, userIdToAdd) { return req(`/groups?id=${groupId}&add=1`, { method: 'POST', body: { userIdToAdd } }); }
+export async function apiLeaveGroup(groupId) { return req(`/groups?id=${groupId}`, { method: 'DELETE' }); }
+
 // Draft
 export async function apiGetDraft(teamId) { return (await req(`/draft?teamId=${teamId}`)).draft; }
 export async function apiSaveDraft(teamId, content) { return req(`/draft?teamId=${teamId}`, { method: 'PUT', body: { content } }); }

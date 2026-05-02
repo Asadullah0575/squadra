@@ -159,6 +159,32 @@
   .back-link{font-size:12px;color:var(--muted);cursor:pointer;font-family:'IBM Plex Mono',monospace}
   .back-link:hover{color:var(--white)}
 
+  /* SIDEBAR TABS */
+  .sidebar-tabs{display:flex;border-bottom:1px solid var(--border)}
+  .sidebar-tab{flex:1;padding:9px;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--faint);background:transparent;border:none;cursor:pointer;transition:all .12s;border-bottom:2px solid transparent}
+  .sidebar-tab:hover{color:var(--muted)}
+  .sidebar-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+  /* CREATE GROUP BTN */
+  .create-group-btn{width:calc(100% - 2rem);margin:0.75rem 1rem;padding:7px;background:transparent;border:1px dashed rgba(212,245,60,0.2);border-radius:var(--r);font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:rgba(212,245,60,0.5);cursor:pointer;transition:all .12s;display:flex;align-items:center;justify-content:center;gap:6px}
+  .create-group-btn:hover{border-color:rgba(212,245,60,0.4);color:var(--accent)}
+
+  /* GROUP ITEM */
+  .group-item{padding:10px 1rem;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;display:flex;align-items:center;gap:10px}
+  .group-item:hover{background:var(--bg3)}
+  .group-item.active{background:var(--bg3);border-left:2px solid var(--accent)}
+  .group-icon{width:32px;height:32px;border-radius:5px;background:rgba(212,245,60,0.08);border:1px solid rgba(212,245,60,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;color:var(--accent)}
+  .group-info{flex:1;min-width:0}
+  .group-name{font-size:12px;font-weight:600;color:var(--white);margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .group-meta{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  /* GROUP MEMBERS ROW */
+  .members-row{display:flex;align-items:center;gap:6px;padding:8px 1rem;border-bottom:1px solid var(--border);background:var(--bg3);flex-wrap:wrap}
+  .member-chip{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;padding:3px 8px;border-radius:100px;border:1px solid var(--border);background:var(--bg2)}
+  .member-chip-avi{width:16px;height:16px;border-radius:3px;object-fit:cover}
+  .add-member-btn{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent);background:var(--accent-dim);border:1px solid rgba(212,245,60,0.2);border-radius:100px;padding:3px 10px;cursor:pointer;transition:all .12s;white-space:nowrap}
+  .add-member-btn:hover{background:rgba(212,245,60,0.16)}
+
   /* TEAM CHAT */
   .team-layout{display:grid;grid-template-columns:240px 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;min-height:640px}
   .team-list{background:var(--bg2);overflow-y:auto}
@@ -380,16 +406,35 @@
     </div>
     <div class="team-layout">
       <div class="team-list">
-        <div class="team-list-header">Teams</div>
-        <div id="teamList"><div style="padding:2rem;text-align:center;color:var(--faint);font-size:12px">No teams yet</div></div>
+        <!-- SIDEBAR TABS -->
+        <div class="sidebar-tabs">
+          <button class="sidebar-tab active" id="tabDirect" onclick="switchSidebarTab('direct')">DIRECT</button>
+          <button class="sidebar-tab" id="tabGroups" onclick="switchSidebarTab('groups')">GROUPS</button>
+        </div>
+        <!-- DIRECT LIST -->
+        <div id="directList">
+          <div style="padding:2rem;text-align:center;color:var(--faint);font-size:12px">No teams yet</div>
+        </div>
+        <!-- GROUPS LIST -->
+        <div id="groupsList" style="display:none">
+          <button class="create-group-btn" onclick="openCreateGroupModal()">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+            NEW GROUP
+          </button>
+          <div id="groupListItems"><div style="padding:1.5rem;text-align:center;color:var(--faint);font-size:12px">No groups yet</div></div>
+        </div>
       </div>
+
+      <!-- CHAT PANEL -->
       <div class="chat-panel" id="chatPanel">
         <div class="no-team" id="noTeamMsg">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".3"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          <p>Select a team to start chatting</p>
+          <p>Select a chat to start messaging</p>
         </div>
         <div id="chatContent" class="hidden" style="flex:1;flex-direction:column;height:100%">
           <div class="chat-header" id="chatHeader"></div>
+          <!-- members row for groups -->
+          <div id="membersRow" class="hidden"></div>
           <div class="chat-tabs">
             <button class="chat-tab active" id="tabMessages" onclick="switchTab('messages')">MESSAGES</button>
             <button class="chat-tab" id="tabDraft" onclick="switchTab('draft')">SHARED DRAFT</button>
@@ -409,8 +454,8 @@
                 <span class="draft-title">Shared Notes & Draft</span>
                 <span class="draft-status" id="draftStatus">—</span>
               </div>
-              <textarea class="draft-textarea" id="draftContent" placeholder="Start writing shared notes, ideas, links, plans... Both team members can edit this."></textarea>
-              <span class="draft-hint">Auto-saves every 5 seconds · Visible to both team members</span>
+              <textarea class="draft-textarea" id="draftContent" placeholder="Start writing shared notes, ideas, links, plans..."></textarea>
+              <span class="draft-hint">Auto-saves every 5 seconds · Visible to all team members</span>
             </div>
           </div>
         </div>
@@ -573,6 +618,31 @@
   </div>
 </div>
 
+<!-- CREATE GROUP MODAL -->
+<div class="overlay" id="groupOverlay">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-head">
+      <div><div class="modal-title">Create a group</div><div class="modal-sub">Add members from your existing teams</div></div>
+      <button class="close-btn" onclick="closeCreateGroupModal()">✕</button>
+    </div>
+    <div class="field">
+      <div class="field-label">Group name <span class="req">*</span></div>
+      <input class="f-input" id="groupName" type="text" placeholder="e.g. DeFi Squad, Team Alpha...">
+    </div>
+    <div class="field">
+      <div class="field-label">Add members</div>
+      <div id="groupMemberPicker" class="pick-grid" style="gap:6px">
+        <div style="font-size:12px;color:var(--faint);font-family:'IBM Plex Mono',monospace">Loading your team members...</div>
+      </div>
+    </div>
+    <div class="form-error hidden" id="groupError"></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeCreateGroupModal()">CANCEL</button>
+      <button class="btn-go" id="groupSubmitBtn" onclick="submitCreateGroup()">CREATE GROUP →</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script type="module">
@@ -581,7 +651,8 @@ import {
   apiGetProfiles, apiPostProfile, apiEditProfile, apiDeleteProfile,
   apiGetSentInvites, apiGetReceivedInvites, apiSendInvite, apiRespondInvite,
   apiGetTeams, apiGetMessages, apiSendMessage,
-  apiGetDraft, apiSaveDraft, apiUploadAvatar
+  apiGetDraft, apiSaveDraft, apiUploadAvatar,
+  apiGetGroups, apiCreateGroup, apiGetGroupMessages, apiSendGroupMessage, apiAddGroupMember, apiLeaveGroup
 } from '/js/api.js';
 
 // ── constants ──────────────────────────────────────────
@@ -594,8 +665,10 @@ let allProfiles=[], myInvites=[], selSkills=[], selLooking=[];
 let pAvatarBase64=null, eAvatarBase64=null;
 let editSkills=[], editLooking=[], editingProfileId=null;
 let F={track:'all',role:'all',tz:'all'}, authMode='signin', isForgot=false;
-let activeTeamId=null, activeTab='messages', pollInterval=null, draftInterval=null;
+let activeTeamId=null, activeGroupId=null, activeTab='messages', activeChatType='direct';
+let pollInterval=null, draftInterval=null;
 let lastMsgTime=null, lastDraftSave=null, draftDirty=false;
+let allTeams=[], selectedGroupMembers=[];
 window.currentUser=getCurrentUser();
 
 // ── helpers ────────────────────────────────────────────
@@ -727,13 +800,22 @@ window.respondInvite=async(id,action)=>{
 setInterval(()=>{if(window.currentUser) loadBell();},30000);
 
 // ── TEAMS + CHAT ───────────────────────────────────────
+// ── sidebar tab switching ──────────────────────────────
+window.switchSidebarTab = (tab) => {
+  document.getElementById('tabDirect').classList.toggle('active', tab==='direct');
+  document.getElementById('tabGroups').classList.toggle('active', tab==='groups');
+  document.getElementById('directList').style.display = tab==='direct'?'block':'none';
+  document.getElementById('groupsList').style.display = tab==='groups'?'block':'none';
+  if(tab==='groups') loadGroups();
+};
+
 async function loadTeams() {
   if(!window.currentUser) return;
   try {
-    const teams=await apiGetTeams();
-    const list=document.getElementById('teamList');
-    if(!teams.length){list.innerHTML='<div style="padding:2rem;text-align:center;color:var(--faint);font-size:12px">No teams yet.<br>Accept an invite to form a team.</div>';return;}
-    list.innerHTML=teams.map(t=>{
+    allTeams = await apiGetTeams();
+    const list=document.getElementById('directList');
+    if(!allTeams.length){list.innerHTML='<div style="padding:2rem;text-align:center;color:var(--faint);font-size:12px">No teams yet.<br>Accept an invite to form a team.</div>';return;}
+    list.innerHTML=allTeams.map(t=>{
       const av=aviColor(t.partner_user_id);
       const avatarEl=t.partner_avatar_url
         ?`<img src="${t.partner_avatar_url}" style="width:32px;height:32px;border-radius:5px;object-fit:cover;flex-shrink:0">`
@@ -746,12 +828,216 @@ async function loadTeams() {
   }catch(e){console.error(e);}
 }
 
+// ── GROUP LOADING ──────────────────────────────────────
+async function loadGroups() {
+  if(!window.currentUser) return;
+  try {
+    const groups = await apiGetGroups();
+    const list = document.getElementById('groupListItems');
+    if(!groups.length){
+      list.innerHTML='<div style="padding:1.5rem;text-align:center;color:var(--faint);font-size:12px">No groups yet.<br>Create one above.</div>';
+      return;
+    }
+    list.innerHTML = groups.map(g=>`
+      <div class="group-item ${activeGroupId===g.id?'active':''}" data-gid="${g.id}" onclick="window.openGroupChat('${g.id}','${escAttr(g.name)}')">
+        <div class="group-icon">${ini(g.name)}</div>
+        <div class="group-info">
+          <div class="group-name">${esc(g.name)}</div>
+          <div class="group-meta">${g.member_count} member${g.member_count!==1?'s':''} ${g.last_message?'· '+esc(g.last_message).slice(0,20)+'...':''}</div>
+        </div>
+      </div>`).join('');
+  } catch(e){ console.error(e); }
+}
+
+// ── CREATE GROUP MODAL ─────────────────────────────────
+window.openCreateGroupModal = async () => {
+  document.getElementById('groupName').value='';
+  document.getElementById('groupError').classList.add('hidden');
+  selectedGroupMembers=[];
+
+  // load team members into picker
+  const picker = document.getElementById('groupMemberPicker');
+  if(!allTeams.length){
+    try{ allTeams = await apiGetTeams(); }catch(e){}
+  }
+  if(!allTeams.length){
+    picker.innerHTML='<div style="font-size:12px;color:var(--faint);font-family:\'IBM Plex Mono\',monospace">No team members yet</div>';
+  } else {
+    picker.innerHTML = allTeams.map(t=>{
+      const av=aviColor(t.partner_user_id);
+      const imgEl=t.partner_avatar_url?`<img src="${t.partner_avatar_url}" style="width:20px;height:20px;border-radius:3px;object-fit:cover">`:`<span style="font-size:9px">${ini(t.partner_name)}</span>`;
+      return `<button class="pick-btn" style="display:flex;align-items:center;gap:6px" data-uid="${t.partner_user_id}" onclick="toggleGroupMember(this,'${t.partner_user_id}')">
+        <span style="width:20px;height:20px;border-radius:3px;background:${av.bg};color:${av.color};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px;font-family:'IBM Plex Mono',monospace">${imgEl}</span>
+        ${esc(t.partner_name)}
+      </button>`;
+    }).join('');
+  }
+  document.getElementById('groupOverlay').classList.add('open');
+};
+
+window.closeCreateGroupModal = () => document.getElementById('groupOverlay').classList.remove('open');
+document.getElementById('groupOverlay').addEventListener('click', e=>{ if(e.target===document.getElementById('groupOverlay')) window.closeCreateGroupModal(); });
+
+window.toggleGroupMember = (btn, uid) => {
+  btn.classList.toggle('on');
+  selectedGroupMembers = btn.classList.contains('on')
+    ? [...selectedGroupMembers, uid]
+    : selectedGroupMembers.filter(x=>x!==uid);
+};
+
+window.submitCreateGroup = async () => {
+  const name = document.getElementById('groupName').value.trim();
+  const errEl = document.getElementById('groupError');
+  const btn = document.getElementById('groupSubmitBtn');
+  errEl.classList.add('hidden');
+  if(!name){ errEl.textContent='Group name required'; errEl.classList.remove('hidden'); return; }
+  btn.disabled=true; btn.textContent='CREATING...';
+  try {
+    await apiCreateGroup(name, selectedGroupMembers);
+    window.closeCreateGroupModal();
+    loadGroups();
+    toast(`Group "${name}" created!`);
+  } catch(e){ errEl.textContent=e.message; errEl.classList.remove('hidden'); }
+  finally{ btn.disabled=false; btn.textContent='CREATE GROUP →'; }
+};
+
+// ── GROUP CHAT ─────────────────────────────────────────
+window.openGroupChat = async (groupId, groupName) => {
+  if(pollInterval) clearInterval(pollInterval);
+  if(draftInterval) clearInterval(draftInterval);
+  activeGroupId=groupId; activeTeamId=null; activeChatType='group';
+  lastMsgTime=null; draftDirty=false;
+
+  document.getElementById('noTeamMsg').classList.add('hidden');
+  const cc=document.getElementById('chatContent');
+  cc.classList.remove('hidden');
+  cc.style.display='flex'; cc.style.flexDirection='column'; cc.style.flex='1';
+
+  // hide draft tab for groups
+  document.getElementById('tabDraft').classList.add('hidden');
+  document.getElementById('membersRow').classList.remove('hidden');
+
+  // header
+  document.getElementById('chatHeader').innerHTML=`
+    <div class="group-icon" style="width:36px;height:36px;font-size:13px;border-radius:6px">${ini(groupName)}</div>
+    <div><div class="chat-partner-name">${esc(groupName)}</div><div class="chat-partner-role">Group chat</div></div>
+    <button onclick="window.leaveGroup('${groupId}')" style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:10px;padding:4px 10px;border:1px solid rgba(240,80,80,0.2);border-radius:4px;background:rgba(240,80,80,0.06);color:#f08080;cursor:pointer">LEAVE</button>`;
+
+  // update sidebar active state
+  document.querySelectorAll('.group-item').forEach(el=>el.classList.remove('active'));
+  document.querySelector(`.group-item[data-gid="${groupId}"]`)?.classList.add('active');
+
+  switchTab('messages');
+  await loadGroupMessages(false);
+
+  pollInterval = setInterval(()=>loadGroupMessages(true), 4000);
+};
+
+async function loadGroupMessages(onlyNew=false) {
+  if(!activeGroupId) return;
+  try {
+    const data = await apiGetGroupMessages(activeGroupId, onlyNew?lastMsgTime:null);
+    const msgs = data.messages || [];
+    const members = data.members || [];
+
+    // render members row
+    const av2=id=>{let h=0;for(let c of id)h=(h*31+c.charCodeAt(0))&0xffffffff;return AVI[Math.abs(h)%AVI.length]};
+    document.getElementById('membersRow').innerHTML=`
+      <div class="members-row">
+        ${members.map(m=>{
+          const a=av2(m.id);
+          return m.avatar_url
+            ?`<span class="member-chip"><img class="member-chip-avi" src="${m.avatar_url}">${esc(m.name||'')}</span>`
+            :`<span class="member-chip"><span style="width:16px;height:16px;border-radius:3px;background:${a.bg};color:${a.color};display:inline-flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:8px;font-weight:600">${ini(m.name||'?')}</span>${esc(m.name||'')}</span>`;
+        }).join('')}
+        <button class="add-member-btn" onclick="openAddMemberModal('${activeGroupId}')">+ Add</button>
+      </div>`;
+
+    if(!msgs.length && !onlyNew){document.getElementById('chatMsgs').innerHTML='<div class="chat-empty">No messages yet — say hello!</div>';return;}
+    if(!msgs.length) return;
+    lastMsgTime=msgs[msgs.length-1].created_at;
+    const container=document.getElementById('chatMsgs');
+    const atBottom=container.scrollHeight-container.scrollTop-container.clientHeight<80;
+    if(onlyNew){msgs.forEach(m=>{const d=document.createElement('div');d.innerHTML=groupMsgHTML(m);container.appendChild(d.firstChild);});}
+    else container.innerHTML=msgs.map(groupMsgHTML).join('');
+    if(!onlyNew||atBottom) container.scrollTop=container.scrollHeight;
+  }catch(e){}
+}
+
+function groupMsgHTML(m) {
+  const mine=m.from_user_id===window.currentUser?.id;
+  const av=aviColor(m.from_user_id);
+  const avatarEl=m.from_avatar?`<img src="${m.from_avatar}" style="width:24px;height:24px;border-radius:4px;object-fit:cover;flex-shrink:0">`:`<div style="width:24px;height:24px;border-radius:4px;background:${av.bg};color:${av.color};display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;flex-shrink:0">${ini(m.from_name||'?')}</div>`;
+  return `<div class="msg-row" style="${mine?'align-items:flex-end':'align-items:flex-start'}">
+    ${!mine?`<div style="display:flex;align-items:flex-end;gap:6px">${avatarEl}<div>`:'<div>'}
+    ${!mine?`<div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--faint);margin-bottom:2px">${esc(m.from_name||'')}</div>`:''}
+    <div class="msg-bubble ${mine?'mine':'theirs'}">${escHtml(m.body)}</div>
+    <div class="msg-meta ${mine?'mine':''}">${fmtTime(m.created_at)}</div>
+    ${!mine?'</div></div>':''}
+  </div>`;
+}
+
+// override sendMsg to handle both direct and group
+window.sendMsg = async () => {
+  const input=document.getElementById('chatInput');
+  const body=input?.value?.trim();
+  if(!body) return;
+  const btn=document.getElementById('sendBtn');
+  input.value=''; btn.disabled=true;
+  try {
+    if(activeChatType==='group' && activeGroupId) {
+      const msg=await apiSendGroupMessage(activeGroupId, body);
+      lastMsgTime=msg.created_at;
+      const container=document.getElementById('chatMsgs');
+      const d=document.createElement('div'); d.innerHTML=groupMsgHTML(msg); container.appendChild(d.firstChild);
+      container.scrollTop=container.scrollHeight;
+    } else if(activeTeamId) {
+      const msg=await apiSendMessage(activeTeamId, body);
+      lastMsgTime=msg.created_at;
+      const container=document.getElementById('chatMsgs');
+      const d=document.createElement('div'); d.innerHTML=msgHTML(msg); container.appendChild(d.firstChild);
+      container.scrollTop=container.scrollHeight;
+      loadTeams();
+    }
+  }catch(e){toast(e.message,true); input.value=body;}
+  finally{btn.disabled=false;}
+};
+
+window.leaveGroup = async (groupId) => {
+  if(!confirm('Leave this group?')) return;
+  try{
+    await apiLeaveGroup(groupId);
+    activeGroupId=null; activeChatType='direct';
+    document.getElementById('chatContent').classList.add('hidden');
+    document.getElementById('noTeamMsg').classList.remove('hidden');
+    document.getElementById('membersRow').classList.add('hidden');
+    document.getElementById('tabDraft').classList.remove('hidden');
+    loadGroups(); toast('Left group');
+  }catch(e){toast(e.message,true);}
+};
+
+// add member to group
+window.openAddMemberModal = async (groupId) => {
+  if(!allTeams.length){ try{ allTeams=await apiGetTeams(); }catch(e){} }
+  const options = allTeams.map(t=>`${t.partner_name} (${t.partner_role||'Builder'})`).join('\n');
+  const idx = allTeams.length===1 ? 0 : parseInt(prompt(`Add member to group.\nYour team members:\n${allTeams.map((t,i)=>`${i}: ${t.partner_name}`).join('\n')}\n\nEnter number:`));
+  if(isNaN(idx)||!allTeams[idx]) return;
+  try{
+    await apiAddGroupMember(groupId, allTeams[idx].partner_user_id);
+    toast(`${allTeams[idx].partner_name} added to group`);
+    loadGroupMessages(false);
+  }catch(e){toast(e.message,true);}
+};
+
 window.openTeamChat = async function(teamId,partnerName,partnerRole,partnerUserId,partnerAvatar) {
   if(pollInterval) clearInterval(pollInterval);
   if(draftInterval) clearInterval(draftInterval);
-  activeTeamId=teamId; lastMsgTime=null; draftDirty=false;
+  activeTeamId=teamId; activeGroupId=null; activeChatType='direct';
+  lastMsgTime=null; draftDirty=false;
 
   document.getElementById('noTeamMsg').classList.add('hidden');
+  document.getElementById('membersRow').classList.add('hidden');
+  document.getElementById('tabDraft').classList.remove('hidden');
   const cc=document.getElementById('chatContent');
   cc.classList.remove('hidden');
   cc.style.display='flex';
@@ -813,23 +1099,9 @@ function msgHTML(m) {
 }
 
 function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function esc(s){return escHtml(String(s||''))}
+function escAttr(s){return String(s||'').replace(/'/g,'&#39;').replace(/"/g,'&quot;')}
 
-window.sendMsg=async()=>{
-  const input=document.getElementById('chatInput');
-  const body=input?.value?.trim();
-  if(!body||!activeTeamId) return;
-  const btn=document.getElementById('sendBtn');
-  input.value=''; btn.disabled=true;
-  try{
-    const msg=await apiSendMessage(activeTeamId,body);
-    lastMsgTime=msg.created_at;
-    const container=document.getElementById('chatMsgs');
-    const d=document.createElement('div');d.innerHTML=msgHTML(msg);container.appendChild(d.firstChild);
-    container.scrollTop=container.scrollHeight;
-    loadTeams();
-  }catch(e){toast(e.message,true);input.value=body;}
-  finally{btn.disabled=false;}
-};
 
 // ── DRAFT ──────────────────────────────────────────────
 let _draftContent='';

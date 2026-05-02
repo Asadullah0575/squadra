@@ -84,6 +84,39 @@ module.exports = async function handler(req, res) {
   await run('profiles.twitter',    'ALTER TABLE profiles ADD COLUMN twitter TEXT');
   await run('profiles.website',    'ALTER TABLE profiles ADD COLUMN website TEXT');
 
+  // Groups
+  await run('groups table', `
+    CREATE TABLE IF NOT EXISTS groups (
+      id          TEXT PRIMARY KEY,
+      name        TEXT NOT NULL,
+      created_by  TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      created_at  TEXT DEFAULT (datetime('now'))
+    )
+  `);
+
+  await run('group_members table', `
+    CREATE TABLE IF NOT EXISTS group_members (
+      id         TEXT PRIMARY KEY,
+      group_id   TEXT NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+      user_id    TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      joined_at  TEXT DEFAULT (datetime('now')),
+      UNIQUE(group_id, user_id)
+    )
+  `);
+
+  await run('group_messages table', `
+    CREATE TABLE IF NOT EXISTS group_messages (
+      id           TEXT PRIMARY KEY,
+      group_id     TEXT NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+      from_user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      body         TEXT NOT NULL,
+      created_at   TEXT DEFAULT (datetime('now'))
+    )
+  `);
+
+  await run('idx group_members', 'CREATE INDEX IF NOT EXISTS idx_group_members ON group_members(group_id, user_id)');
+  await run('idx group_messages', 'CREATE INDEX IF NOT EXISTS idx_group_messages ON group_messages(group_id, created_at ASC)');
+
   await run('backfill to_user_id', `
     UPDATE invites
     SET to_user_id = (
