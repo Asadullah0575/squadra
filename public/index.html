@@ -186,21 +186,48 @@
   .add-member-btn:hover{background:rgba(212,245,60,0.16)}
 
   /* DATE DIVIDER */
-  .date-divider{display:flex;align-items:center;gap:10px;margin:12px 0;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--faint)}
+  .date-divider{display:flex;align-items:center;gap:10px;margin:16px 0 8px;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--faint)}
   .date-divider::before,.date-divider::after{content:'';flex:1;height:1px;background:var(--border)}
 
-  /* MSG ACTIONS */
-  .msg-row{position:relative}
+  /* MSG ROW */
+  .msg-row{display:flex;flex-direction:column;margin-bottom:4px;position:relative;padding:0 2px}
   .msg-row:hover .msg-actions{opacity:1}
-  .msg-actions{position:absolute;top:-8px;right:0;opacity:0;transition:opacity .15s;display:flex;gap:4px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:3px 5px}
-  .msg-action-btn{background:none;border:none;color:var(--muted);cursor:pointer;padding:2px 4px;border-radius:3px;font-size:11px;transition:all .12s}
-  .msg-action-btn:hover{color:var(--red);background:rgba(240,80,80,0.08)}
+  .msg-actions{position:absolute;top:0;right:4px;opacity:0;transition:opacity .15s;display:flex;gap:4px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:3px 5px;z-index:10}
+  .msg-action-btn{background:none;border:none;color:var(--muted);cursor:pointer;padding:2px 4px;border-radius:3px;font-size:11px;transition:all .12s;line-height:1}
+  .msg-action-btn:hover{color:#f08080;background:rgba(240,80,80,0.08)}
+
+  /* MSG GROUPS - consecutive messages from same sender */
+  .msg-group{display:flex;flex-direction:column;gap:2px;margin-bottom:10px}
+  .msg-group.mine{align-items:flex-end}
+  .msg-group.theirs{align-items:flex-start}
+
+  /* SENDER ROW */
+  .msg-sender-row{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+  .msg-sender-avi{width:26px;height:26px;border-radius:5px;object-fit:cover;flex-shrink:0}
+  .msg-sender-name{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.02em}
+
+  /* BUBBLE */
+  .msg-bubble{max-width:62%;padding:9px 13px;border-radius:10px;font-size:13px;line-height:1.6;word-break:break-word;position:relative}
+  .msg-bubble.mine{background:var(--accent-dim);border:1px solid rgba(212,245,60,0.18);color:var(--white);border-bottom-right-radius:3px}
+  .msg-bubble.theirs{background:var(--bg3);border:1px solid var(--border);color:var(--white);border-bottom-left-radius:3px}
+  .msg-bubble.deleted{background:transparent;border-color:var(--border);padding:6px 10px}
   .msg-deleted{font-style:italic;color:var(--faint);font-size:12px}
 
-  /* FILE/IMAGE in chat */
-  .msg-image{max-width:220px;max-height:200px;border-radius:6px;cursor:pointer;display:block;margin-top:4px;border:1px solid var(--border)}
-  .msg-file{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--white);text-decoration:none;margin-top:4px}
-  .msg-file:hover{border-color:var(--border2)}
+  /* META */
+  .msg-meta{font-size:10px;color:var(--faint);font-family:'IBM Plex Mono',monospace;margin-top:3px;padding:0 2px}
+  .msg-meta.mine{text-align:right;align-self:flex-end}
+  .msg-meta.theirs{text-align:left;align-self:flex-start}
+
+  /* IMAGE / FILE */
+  .msg-image{max-width:240px;max-height:240px;border-radius:8px;cursor:pointer;display:block;border:1px solid var(--border);object-fit:cover;transition:opacity .12s}
+  .msg-image:hover{opacity:.9}
+  .msg-caption{font-size:11px;color:var(--muted);margin-top:4px;font-style:italic}
+  .msg-file{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;font-size:12px;color:var(--white);text-decoration:none;transition:border-color .12s;min-width:160px}
+  .msg-file:hover{border-color:var(--accent);color:var(--accent)}
+  .msg-file-icon{width:28px;height:28px;border-radius:5px;background:rgba(212,245,60,0.08);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--accent)}
+  .msg-file-info{flex:1;min-width:0}
+  .msg-file-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}
+  .msg-file-label{font-size:10px;color:var(--faint);font-family:'IBM Plex Mono',monospace;letter-spacing:0.06em;text-transform:uppercase;margin-top:1px}
 
   /* FILE UPLOAD BTN */
   .attach-btn{width:34px;height:34px;border:1px solid var(--border);border-radius:var(--r);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s;flex-shrink:0}
@@ -233,14 +260,8 @@
   /* MESSAGES TAB */
   .tab-content{display:none;flex:1;flex-direction:column}
   .tab-content.active{display:flex}
-  .chat-messages{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:6px;max-height:400px}
+  .chat-messages{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:0;max-height:400px}
   .chat-empty{display:flex;align-items:center;justify-content:center;height:200px;color:var(--faint);font-size:12px;font-family:'IBM Plex Mono',monospace}
-  .msg-row{display:flex;flex-direction:column}
-  .msg-bubble{max-width:68%;padding:8px 12px;border-radius:8px;font-size:13px;line-height:1.5;word-break:break-word}
-  .msg-bubble.mine{background:var(--accent-dim);border:1px solid rgba(212,245,60,0.15);color:var(--white);align-self:flex-end;border-bottom-right-radius:2px}
-  .msg-bubble.theirs{background:var(--bg3);border:1px solid var(--border);color:var(--white);align-self:flex-start;border-bottom-left-radius:2px}
-  .msg-meta{font-size:10px;color:var(--faint);font-family:'IBM Plex Mono',monospace;margin-top:2px}
-  .msg-meta.mine{text-align:right}
   .chat-input-row{padding:1rem;border-top:1px solid var(--border);display:flex;gap:8px}
   .chat-input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:9px 12px;color:var(--white);font-family:'IBM Plex Sans',sans-serif;font-size:13px;outline:none;transition:border-color .12s;resize:none;max-height:100px}
   .chat-input:focus{border-color:rgba(212,245,60,0.3)}
@@ -1089,36 +1110,55 @@ function formatDateLabel(ts) {
 
 function groupMsgHTML(m, isAdmin) {
   isAdmin = isAdmin || false;
-  const mine=m.from_user_id===window.currentUser?.id;
-  const canDelete=mine||isAdmin;
-  const av=aviColor(m.from_user_id);
-  const avatarEl=m.from_avatar
-    ?'<img src="'+m.from_avatar+'" style="width:24px;height:24px;border-radius:4px;object-fit:cover;flex-shrink:0">'
-    :'<div style="width:24px;height:24px;border-radius:4px;background:'+av.bg+';color:'+av.color+';display:flex;align-items:center;justify-content:center;font-family:\'IBM Plex Mono\',monospace;font-size:9px;font-weight:600;flex-shrink:0">'+ini(m.from_name||'?')+'</div>';
+  const mine = m.from_user_id === window.currentUser?.id;
+  const canDelete = (mine || isAdmin) && !m.deleted;
+  const av = aviColor(m.from_user_id);
 
-  let content='';
-  if(m.deleted){
-    content='<span class="msg-deleted">This message was deleted</span>';
-  } else if(m.type==='image'&&m.file_url){
-    content='<img class="msg-image" src="'+m.file_url+'" onclick="window.open(\''+m.file_url+'\',\'_blank\')" alt="Image"><div style="font-size:11px;color:var(--faint);margin-top:2px">'+esc(m.body)+'</div>';
-  } else if(m.type==='file'&&m.file_url){
-    content='<a class="msg-file" href="'+m.file_url+'" target="_blank"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>'+esc(m.body)+'</a>';
+  // avatar element
+  const avatarEl = m.from_avatar
+    ? '<img class="msg-sender-avi" src="'+m.from_avatar+'">'
+    : '<div class="msg-sender-avi" style="background:'+av.bg+';color:'+av.color+';display:flex;align-items:center;justify-content:center;font-family:\'IBM Plex Mono\',monospace;font-size:9px;font-weight:600">'+ini(m.from_name||'?')+'</div>';
+
+  // message content
+  let content = '';
+  if (m.deleted) {
+    content = '<span class="msg-deleted">🚫 Message deleted</span>';
+  } else if (m.type === 'image' && m.file_url) {
+    content = '<img class="msg-image" src="'+m.file_url+'" onclick="window.open(\''+m.file_url+'\',\'_blank\')" alt="Image">'
+             + (m.body && m.body !== 'Image' ? '<div class="msg-caption">'+esc(m.body)+'</div>' : '');
+  } else if (m.type === 'file' && m.file_url) {
+    const ext = (m.body || '').split('.').pop().toUpperCase().slice(0,4) || 'FILE';
+    content = '<a class="msg-file" href="'+m.file_url+'" target="_blank">'
+             + '<div class="msg-file-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>'
+             + '<div class="msg-file-info"><div class="msg-file-name">'+esc(m.body)+'</div><div class="msg-file-label">'+ext+' · Download</div></div>'
+             + '</a>';
   } else {
-    content=escHtml(m.body);
+    content = escHtml(m.body || '');
   }
 
-  const deleteBtn=canDelete&&!m.deleted
-    ?'<div class="msg-actions"><button class="msg-action-btn" title="Delete" onclick="window.deleteGroupMsg(\''+activeGroupId+'\',\''+m.id+'\',this)">🗑</button></div>'
-    :'';
+  const deleteBtn = canDelete
+    ? '<div class="msg-actions"><button class="msg-action-btn" title="Delete message" onclick="window.deleteGroupMsg(\''+activeGroupId+'\',\''+m.id+'\',this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button></div>'
+    : '';
 
-  const align=mine?'align-items:flex-end':'align-items:flex-start';
-  const fromLabel=!mine?'<div style="font-family:\'IBM Plex Mono\',monospace;font-size:9px;color:var(--faint);margin-bottom:2px">'+esc(m.from_name||'')+'</div>':'';
-  const wrapOpen=!mine?'<div style="display:flex;align-items:flex-end;gap:6px">'+avatarEl+'<div>':'<div>';
-  const wrapClose=!mine?'</div></div>':'';
+  const time = fmtTime(m.created_at);
 
-  return '<div class="msg-row" style="'+align+'">'+deleteBtn+wrapOpen+fromLabel+'<div class="msg-bubble '+(mine?'mine':'theirs')+'">'+content+'</div><div class="msg-meta '+(mine?'mine':'')+'">'+fmtTime(m.created_at)+'</div>'+wrapClose+'</div>';
+  if (mine) {
+    return '<div class="msg-row" style="align-items:flex-end">'
+      + deleteBtn
+      + '<div class="msg-bubble mine'+(m.deleted?' deleted':'')+'">'+content+'</div>'
+      + '<div class="msg-meta mine">'+time+'</div>'
+      + '</div>';
+  } else {
+    return '<div class="msg-row" style="align-items:flex-start">'
+      + '<div style="display:flex;align-items:flex-end;gap:8px;max-width:72%">'
+      + avatarEl
+      + '<div style="display:flex;flex-direction:column;gap:2px;min-width:0">'
+      + '<div class="msg-sender-name">'+esc(m.from_name||'')+'</div>'
+      + '<div class="msg-bubble theirs'+(m.deleted?' deleted':'')+'">'+content+'</div>'
+      + '<div class="msg-meta theirs">'+time+'</div>'
+      + '</div></div></div>';
+  }
 }
-
 window.deleteGroupMsg = async function(groupId, msgId, btn) {
   btn.disabled=true;
   try {
@@ -1314,11 +1354,26 @@ async function loadMessages(onlyNew=false) {
 }
 
 function msgHTML(m) {
-  const mine=m.from_user_id===window.currentUser?.id;
-  return `<div class="msg-row">
-    <div class="msg-bubble ${mine?'mine':'theirs'}">${escHtml(m.body)}</div>
-    <div class="msg-meta ${mine?'mine':''}">${m.from_name||''} · ${fmtTime(m.created_at)}</div>
-  </div>`;
+  const mine = m.from_user_id === window.currentUser?.id;
+  const time  = fmtTime(m.created_at);
+  if(mine) {
+    return '<div class="msg-row" style="align-items:flex-end">'
+      + '<div class="msg-bubble mine">'+escHtml(m.body)+'</div>'
+      + '<div class="msg-meta mine">'+time+'</div>'
+      + '</div>';
+  } else {
+    const av = aviColor(m.from_user_id);
+    const avatarEl = m.from_avatar
+      ? '<img class="msg-sender-avi" src="'+m.from_avatar+'">'
+      : '<div class="msg-sender-avi" style="background:'+av.bg+';color:'+av.color+';display:flex;align-items:center;justify-content:center;font-family:\'IBM Plex Mono\',monospace;font-size:9px;font-weight:600">'+ini(m.from_name||'?')+'</div>';
+    return '<div class="msg-row" style="align-items:flex-start">'
+      + '<div style="display:flex;align-items:flex-end;gap:8px;max-width:72%">'
+      + avatarEl
+      + '<div style="display:flex;flex-direction:column;gap:2px;min-width:0">'
+      + '<div class="msg-bubble theirs">'+escHtml(m.body)+'</div>'
+      + '<div class="msg-meta theirs">'+time+'</div>'
+      + '</div></div></div>';
+  }
 }
 
 function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
