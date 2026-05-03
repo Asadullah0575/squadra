@@ -618,6 +618,21 @@
   </div>
 </div>
 
+<!-- ADD MEMBER MODAL -->
+<div class="overlay" id="addMemberOverlay">
+  <div class="modal" style="max-width:360px">
+    <div class="modal-head">
+      <div><div class="modal-title">Add member</div><div class="modal-sub">Select from your existing teams</div></div>
+      <button class="close-btn" onclick="document.getElementById('addMemberOverlay').classList.remove('open')">✕</button>
+    </div>
+    <input type="hidden" id="addMemberGroupId">
+    <div id="addMemberList" style="max-height:280px;overflow-y:auto"></div>
+    <div style="margin-top:12px">
+      <button class="btn-cancel" style="width:100%" onclick="document.getElementById('addMemberOverlay').classList.remove('open')">CANCEL</button>
+    </div>
+  </div>
+</div>
+
 <!-- CREATE GROUP MODAL -->
 <div class="overlay" id="groupOverlay">
   <div class="modal" style="max-width:400px">
@@ -877,6 +892,7 @@ window.openCreateGroupModal = async () => {
 
 window.closeCreateGroupModal = () => document.getElementById('groupOverlay').classList.remove('open');
 document.getElementById('groupOverlay').addEventListener('click', e=>{ if(e.target===document.getElementById('groupOverlay')) window.closeCreateGroupModal(); });
+document.getElementById('addMemberOverlay').addEventListener('click', e=>{ if(e.target===document.getElementById('addMemberOverlay')) document.getElementById('addMemberOverlay').classList.remove('open'); });
 
 window.toggleGroupMember = (btn, uid) => {
   btn.classList.toggle('on');
@@ -1019,14 +1035,42 @@ window.leaveGroup = async (groupId) => {
 // add member to group
 window.openAddMemberModal = async (groupId) => {
   if(!allTeams.length){ try{ allTeams=await apiGetTeams(); }catch(e){} }
-  const options = allTeams.map(t=>`${t.partner_name} (${t.partner_role||'Builder'})`).join('\n');
-  const idx = allTeams.length===1 ? 0 : parseInt(prompt(`Add member to group.\nYour team members:\n${allTeams.map((t,i)=>`${i}: ${t.partner_name}`).join('\n')}\n\nEnter number:`));
-  if(isNaN(idx)||!allTeams[idx]) return;
-  try{
-    await apiAddGroupMember(groupId, allTeams[idx].partner_user_id);
-    toast(`${allTeams[idx].partner_name} added to group`);
+
+  // Build modal content
+  const picker = allTeams.map(t => {
+    const av = aviColor(t.partner_user_id);
+    const imgEl = t.partner_avatar_url
+      ? `<img src="${t.partner_avatar_url}" style="width:28px;height:28px;border-radius:4px;object-fit:cover;flex-shrink:0">`
+      : `<span style="width:28px;height:28px;border-radius:4px;background:${av.bg};color:${av.color};display:inline-flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;flex-shrink:0">${ini(t.partner_name)}</span>`;
+    return `<div class="team-item" style="border-radius:6px;border:1px solid var(--border);margin-bottom:4px;padding:8px 10px"
+      onclick="window.confirmAddMember('${groupId}','${t.partner_user_id}','${escAttr(t.partner_name)}',this)">
+      ${imgEl}
+      <div class="team-item-info">
+        <div class="team-item-name">${esc(t.partner_name)}</div>
+        <div class="team-item-role">${esc(t.partner_role||'Builder')}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Inject into a reusable modal
+  document.getElementById('addMemberList').innerHTML = picker || '<div style="color:var(--faint);font-size:12px;padding:8px">No team members available</div>';
+  document.getElementById('addMemberGroupId').value = groupId;
+  document.getElementById('addMemberOverlay').classList.add('open');
+};
+
+window.confirmAddMember = async (groupId, userId, name, el) => {
+  // highlight selected
+  document.querySelectorAll('#addMemberList .team-item').forEach(i => i.style.borderColor='var(--border)');
+  el.style.borderColor = 'rgba(212,245,60,0.4)';
+  try {
+    await apiAddGroupMember(groupId, userId);
+    document.getElementById('addMemberOverlay').classList.remove('open');
+    toast(`${name} added to group`);
     loadGroupMessages(false);
-  }catch(e){toast(e.message,true);}
+  } catch(e) {
+    toast(e.message, true);
+    el.style.borderColor = 'var(--border)';
+  }
 };
 
 window.openTeamChat = async function(teamId,partnerName,partnerRole,partnerUserId,partnerAvatar) {
