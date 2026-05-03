@@ -114,6 +114,13 @@ module.exports = async function handler(req, res) {
     )
   `);
 
+  // Add type and file_url columns to group_messages
+  await run('group_messages.type',     "ALTER TABLE group_messages ADD COLUMN type TEXT DEFAULT 'text'");
+  await run('group_messages.file_url', 'ALTER TABLE group_messages ADD COLUMN file_url TEXT');
+  await run('group_messages.deleted',  'ALTER TABLE group_messages ADD COLUMN deleted INTEGER DEFAULT 0');
+  // Add admin tracking to groups
+  await run('groups.admin_id', 'ALTER TABLE groups ADD COLUMN admin_id TEXT');
+
   await run('idx group_members', 'CREATE INDEX IF NOT EXISTS idx_group_members ON group_members(group_id, user_id)');
   await run('idx group_messages', 'CREATE INDEX IF NOT EXISTS idx_group_messages ON group_messages(group_id, created_at ASC)');
 

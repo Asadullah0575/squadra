@@ -64,9 +64,13 @@ export async function apiGetGroupMessages(groupId, after=null) {
   const q = after ? `&after=${encodeURIComponent(after)}` : '';
   return req(`/groups?id=${groupId}&msgs=1${q}`);
 }
-export async function apiSendGroupMessage(groupId, body) { return (await req(`/groups?id=${groupId}&msg=1`, { method: 'POST', body: { body } })).message; }
+export async function apiSendGroupMessage(groupId, body, fileBase64=null, fileName=null) {
+  return (await req(`/groups?id=${groupId}&msg=1`, { method: 'POST', body: { body, fileBase64, fileName } })).message;
+}
+export async function apiDeleteGroupMessage(groupId, messageId) { return req(`/groups?id=${groupId}&deleteMsg=${messageId}`, { method: 'DELETE' }); }
 export async function apiAddGroupMember(groupId, userIdToAdd) { return req(`/groups?id=${groupId}&add=1`, { method: 'POST', body: { userIdToAdd } }); }
-export async function apiLeaveGroup(groupId) { return req(`/groups?id=${groupId}`, { method: 'DELETE' }); }
+export async function apiRemoveGroupMember(groupId, userId) { return req(`/groups?id=${groupId}&remove=${userId}`, { method: 'DELETE' }); }
+export async function apiLeaveGroup(groupId) { return req(`/groups?id=${groupId}&leave=1`, { method: 'DELETE' }); }
 
 // Draft
 export async function apiGetDraft(teamId) { return (await req(`/draft?teamId=${teamId}`)).draft; }
