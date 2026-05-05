@@ -66,5 +66,27 @@ module.exports = async function handler(req, res) {
     return ok(res, { message: row.rows[0] }, 201);
   }
 
+  // ── PUT edit message ──────────────────────────────────
+  if (req.method === 'PUT') {
+    const { editMsg } = req.query;
+    if (!editMsg) return err(res, 'editMsg required');
+
+    const msgRow = await db.execute({
+      sql: 'SELECT from_user_id FROM messages WHERE id = ? AND team_id = ?',
+      args: [editMsg, req.query.teamId || ''],
+    });
+    if (!msgRow.rows.length) return err(res, 'Message not found', 404);
+    if (msgRow.rows[0].from_user_id !== user.sub) return err(res, 'Can only edit your own messages', 403);
+
+    const { body } = req.body || {};
+    if (!body?.trim()) return err(res, 'body required');
+
+    await db.execute({
+      sql: 'UPDATE messages SET body = ? WHERE id = ?',
+      args: [body.trim(), editMsg],
+    });
+    return ok(res, { message: 'Message updated', body: body.trim() });
+  }
+
   return err(res, 'Method not allowed', 405);
 };

@@ -189,12 +189,17 @@
   .date-divider{display:flex;align-items:center;gap:10px;margin:16px 0 8px;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--faint)}
   .date-divider::before,.date-divider::after{content:'';flex:1;height:1px;background:var(--border)}
 
-  /* MSG ROW */
-  .msg-row{display:flex;flex-direction:column;margin-bottom:4px;position:relative;padding:0 2px}
-  .msg-row:hover .msg-actions{opacity:1}
-  .msg-actions{position:absolute;top:0;right:4px;opacity:0;transition:opacity .15s;display:flex;gap:4px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:3px 5px;z-index:10}
-  .msg-action-btn{background:none;border:none;color:var(--muted);cursor:pointer;padding:2px 4px;border-radius:3px;font-size:11px;transition:all .12s;line-height:1}
-  .msg-action-btn:hover{color:#f08080;background:rgba(240,80,80,0.08)}
+  /* MSG CONTEXT MENU */
+  .msg-row{display:flex;flex-direction:column;margin-bottom:4px;position:relative;padding:0 2px;cursor:pointer}
+  .msg-context-menu{position:fixed;z-index:500;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:4px;min-width:160px;box-shadow:0 8px 24px rgba(0,0,0,0.5);animation:pop .12s ease}
+  .msg-context-item{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:5px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.03em;cursor:pointer;transition:background .1s;color:var(--muted)}
+  .msg-context-item:hover{background:var(--bg3);color:var(--white)}
+  .msg-context-item.danger{color:#f08080}
+  .msg-context-item.danger:hover{background:rgba(240,80,80,0.08);color:#f08080}
+  .msg-edit-input{width:100%;background:var(--bg3);border:1px solid rgba(212,245,60,0.3);border-radius:6px;padding:7px 10px;color:var(--white);font-family:'IBM Plex Sans',sans-serif;font-size:13px;outline:none;margin-top:4px}
+  .msg-edit-actions{display:flex;gap:6px;margin-top:6px}
+  .msg-edit-save{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:5px 12px;background:var(--accent);border:none;border-radius:4px;color:#0a0a0a;cursor:pointer}
+  .msg-edit-cancel{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:5px 12px;background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--muted);cursor:pointer}
 
   /* MSG GROUPS - consecutive messages from same sender */
   .msg-group{display:flex;flex-direction:column;gap:2px;margin-bottom:10px}
@@ -1111,15 +1116,14 @@ function formatDateLabel(ts) {
 function groupMsgHTML(m, isAdmin) {
   isAdmin = isAdmin || false;
   const mine = m.from_user_id === window.currentUser?.id;
-  const canDelete = (mine || isAdmin) && !m.deleted;
+  const canAct = (mine || isAdmin) && !m.deleted;
   const av = aviColor(m.from_user_id);
+  const safeBody = (m.body||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"');
 
-  // avatar element
   const avatarEl = m.from_avatar
     ? '<img class="msg-sender-avi" src="'+m.from_avatar+'">'
     : '<div class="msg-sender-avi" style="background:'+av.bg+';color:'+av.color+';display:flex;align-items:center;justify-content:center;font-family:\'IBM Plex Mono\',monospace;font-size:9px;font-weight:600">'+ini(m.from_name||'?')+'</div>';
 
-  // message content
   let content = '';
   if (m.deleted) {
     content = '<span class="msg-deleted">🚫 Message deleted</span>';
@@ -1136,20 +1140,18 @@ function groupMsgHTML(m, isAdmin) {
     content = escHtml(m.body || '');
   }
 
-  const deleteBtn = canDelete
-    ? '<div class="msg-actions"><button class="msg-action-btn" title="Delete message" onclick="window.deleteGroupMsg(\''+activeGroupId+'\',\''+m.id+'\',this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button></div>'
+  const clickHandler = canAct
+    ? 'onclick="window.showMsgContextMenu(event,\''+m.id+'\',\''+safeBody+'\','+(mine?'true':'false')+','+(isAdmin?'true':'false')+',\''+activeGroupId+'\')"'
     : '';
-
   const time = fmtTime(m.created_at);
 
   if (mine) {
-    return '<div class="msg-row" style="align-items:flex-end">'
-      + deleteBtn
+    return '<div class="msg-row" style="align-items:flex-end" data-msg-id="'+m.id+'" '+clickHandler+'>'
       + '<div class="msg-bubble mine'+(m.deleted?' deleted':'')+'">'+content+'</div>'
       + '<div class="msg-meta mine">'+time+'</div>'
       + '</div>';
   } else {
-    return '<div class="msg-row" style="align-items:flex-start">'
+    return '<div class="msg-row" style="align-items:flex-start" data-msg-id="'+m.id+'" '+clickHandler+'>'
       + '<div style="display:flex;align-items:flex-end;gap:8px;max-width:72%">'
       + avatarEl
       + '<div style="display:flex;flex-direction:column;gap:2px;min-width:0">'
@@ -1159,32 +1161,57 @@ function groupMsgHTML(m, isAdmin) {
       + '</div></div></div>';
   }
 }
-window.deleteGroupMsg = async function(groupId, msgId, btn) {
-  btn.disabled=true;
-  try {
-    await apiDeleteGroupMessage(groupId, msgId);
-    const row=btn.closest('.msg-row');
-    const bubble=row&&row.querySelector('.msg-bubble');
-    if(bubble) bubble.innerHTML='<span class="msg-deleted">This message was deleted</span>';
-    const actions=btn.closest('.msg-actions');
-    if(actions) actions.remove();
-  } catch(e){ window.toast(e.message,true); btn.disabled=false; }
-};
 
-window.openMemberProfile = function(userId, name, role, avatarUrl, groupId, isAdmin) {
+window.openMemberProfile = async function(userId, name, role, avatarUrl, groupId, isAdmin) {
   const av=aviColor(userId);
   const avatarEl=avatarUrl
-    ?'<img src="'+avatarUrl+'" style="width:48px;height:48px;border-radius:8px;object-fit:cover">'
-    :'<div style="width:48px;height:48px;border-radius:8px;background:'+av.bg+';color:'+av.color+';display:flex;align-items:center;justify-content:center;font-family:\'IBM Plex Mono\',monospace;font-weight:600;font-size:16px">'+ini(name)+'</div>';
+    ?'<img src="'+avatarUrl+'" style="width:56px;height:56px;border-radius:10px;object-fit:cover">'
+    :'<div style="width:56px;height:56px;border-radius:10px;background:'+av.bg+';color:'+av.color+';display:flex;align-items:center;justify-content:center;font-family:\'IBM Plex Mono\',monospace;font-weight:600;font-size:18px">'+ini(name)+'</div>';
   document.getElementById('memberProfileContent').innerHTML=
-    '<div style="display:flex;align-items:center;gap:12px">'+avatarEl+'<div><div style="font-size:14px;font-weight:600;color:var(--white)">'+esc(name)+'</div><div style="font-size:12px;color:var(--muted)">'+esc(role||'Builder')+'</div></div></div>';
-  const actions=document.getElementById('memberProfileActions');
-  const isSelf=userId===window.currentUser?.id;
-  let html='';
-  if(!isSelf) html+='<a href="/profile.html?id='+userId+'" style="display:block;text-align:center;padding:8px;font-family:\'IBM Plex Mono\',monospace;font-size:11px;color:var(--accent);background:var(--accent-dim);border:1px solid rgba(212,245,60,0.2);border-radius:4px;text-decoration:none">VIEW PROFILE \u2192</a>';
-  if(isAdmin&&!isSelf) html+='<button onclick="window.removeMemberFromGroup(\''+groupId+'\',\''+userId+'\',\''+name.replace(/'/g,'&#39;')+'\',this)" style="width:100%;padding:8px;font-family:\'IBM Plex Mono\',monospace;font-size:11px;color:#f08080;background:rgba(240,80,80,0.06);border:1px solid rgba(240,80,80,0.2);border-radius:4px;cursor:pointer;margin-top:6px">REMOVE FROM GROUP</button>';
-  actions.innerHTML=html;
+    '<div style="display:flex;align-items:center;gap:14px">'
+    +avatarEl
+    +'<div>'
+    +'<div style="font-size:15px;font-weight:600;color:var(--white);margin-bottom:3px">'+esc(name)+'</div>'
+    +'<div style="font-size:12px;color:var(--muted)">'+esc(role||'Builder')+'</div>'
+    +'</div></div>';
+  document.getElementById('memberProfileActions').innerHTML='<div style="font-size:11px;color:var(--faint);font-family:\'IBM Plex Mono\',monospace;text-align:center;padding:8px">Loading profile...</div>';
   document.getElementById('memberProfileOverlay').classList.add('open');
+
+  // fetch full profile from API to get profile ID
+  const isSelf=userId===window.currentUser?.id;
+  try {
+    const res = await fetch('/api/profiles');
+    const data = await res.json();
+    const profile = data.profiles?.find(p=>p.user_id===userId);
+    const actions = document.getElementById('memberProfileActions');
+    let html='';
+
+    if(profile) {
+      // update modal with full profile info
+      document.getElementById('memberProfileContent').innerHTML=
+        '<div style="display:flex;align-items:center;gap:14px">'
+        +avatarEl
+        +'<div>'
+        +'<div style="font-size:15px;font-weight:600;color:var(--white);margin-bottom:3px">'+esc(profile.name)+'</div>'
+        +'<div style="font-size:12px;color:var(--muted);margin-bottom:6px">'+esc(profile.role||'')+'</div>'
+        // social links
+        +(profile.github?'<a href="https://github.com/'+esc(profile.github)+'" target="_blank" style="font-family:\'IBM Plex Mono\',monospace;font-size:10px;color:var(--muted);text-decoration:none;margin-right:10px">gh/'+esc(profile.github)+'</a>':'')
+        +(profile.twitter?'<a href="https://twitter.com/'+esc(profile.twitter)+'" target="_blank" style="font-family:\'IBM Plex Mono\',monospace;font-size:10px;color:var(--muted);text-decoration:none;margin-right:10px">@'+esc(profile.twitter)+'</a>':'')
+        +'</div></div>';
+
+      if(!isSelf) html+='<a href="/profile.html?id='+profile.id+'" style="display:block;text-align:center;padding:9px;font-family:\'IBM Plex Mono\',monospace;font-size:11px;font-weight:600;letter-spacing:0.04em;color:var(--accent);background:var(--accent-dim);border:1px solid rgba(212,245,60,0.2);border-radius:4px;text-decoration:none">VIEW FULL PROFILE →</a>';
+    } else {
+      if(!isSelf) html+='<div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">No public profile yet</div>';
+    }
+
+    if(isAdmin&&!isSelf) {
+      html+='<button onclick="window.removeMemberFromGroup(\''+groupId+'\',\''+userId+'\',\''+name.replace(/'/g,'&#39;')+'\',this)" style="width:100%;padding:8px;font-family:\'IBM Plex Mono\',monospace;font-size:11px;color:#f08080;background:rgba(240,80,80,0.06);border:1px solid rgba(240,80,80,0.2);border-radius:4px;cursor:pointer;margin-top:4px">REMOVE FROM GROUP</button>';
+    }
+    if(isSelf) html+='<div style="font-size:11px;color:var(--faint);font-family:\'IBM Plex Mono\',monospace;text-align:center;padding:4px">This is you</div>';
+    actions.innerHTML=html;
+  } catch(e) {
+    document.getElementById('memberProfileActions').innerHTML='<div style="font-size:12px;color:var(--faint);text-align:center">Could not load profile</div>';
+  }
 };
 
 window.removeMemberFromGroup = async function(groupId, userId, name, btn) {
@@ -1356,8 +1383,13 @@ async function loadMessages(onlyNew=false) {
 function msgHTML(m) {
   const mine = m.from_user_id === window.currentUser?.id;
   const time  = fmtTime(m.created_at);
+  const safeBody = (m.body||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"');
+  const clickHandler = mine
+    ? 'onclick="window.showDirectMsgContext(event,\''+m.id+'\',\''+safeBody+'\')"'
+    : '';
+
   if(mine) {
-    return '<div class="msg-row" style="align-items:flex-end">'
+    return '<div class="msg-row" style="align-items:flex-end" data-msg-id="'+m.id+'" '+clickHandler+'>'
       + '<div class="msg-bubble mine">'+escHtml(m.body)+'</div>'
       + '<div class="msg-meta mine">'+time+'</div>'
       + '</div>';
@@ -1366,7 +1398,7 @@ function msgHTML(m) {
     const avatarEl = m.from_avatar
       ? '<img class="msg-sender-avi" src="'+m.from_avatar+'">'
       : '<div class="msg-sender-avi" style="background:'+av.bg+';color:'+av.color+';display:flex;align-items:center;justify-content:center;font-family:\'IBM Plex Mono\',monospace;font-size:9px;font-weight:600">'+ini(m.from_name||'?')+'</div>';
-    return '<div class="msg-row" style="align-items:flex-start">'
+    return '<div class="msg-row" style="align-items:flex-start" data-msg-id="'+m.id+'">'
       + '<div style="display:flex;align-items:flex-end;gap:8px;max-width:72%">'
       + avatarEl
       + '<div style="display:flex;flex-direction:column;gap:2px;min-width:0">'
@@ -1604,6 +1636,100 @@ window.submitEdit=async()=>{
 ['authOverlay','postOverlay','editOverlay'].forEach(id=>{
   document.getElementById(id).addEventListener('click',e=>{if(e.target===document.getElementById(id))document.getElementById(id).classList.remove('open')});
 });
+
+// ── MESSAGE CONTEXT MENU ───────────────────────────────
+let _ctxMenu = null;
+function closeContextMenu(){ if(_ctxMenu){ _ctxMenu.remove(); _ctxMenu=null; } }
+document.addEventListener('click', closeContextMenu);
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeContextMenu(); });
+
+window.showMsgContextMenu = function(e, msgId, msgBody, isMine, isAdmin, groupId) {
+  e.preventDefault(); e.stopPropagation();
+  closeContextMenu();
+  if(!isMine && !isAdmin) return;
+  const menu = document.createElement('div');
+  menu.className = 'msg-context-menu';
+  menu.style.left = Math.min(e.clientX, window.innerWidth-180)+'px';
+  menu.style.top  = Math.min(e.clientY, window.innerHeight-120)+'px';
+  let html='';
+  if(isMine) html+=`<div class="msg-context-item" onclick="window.startEditMsg('${msgId}','${msgBody.replace(/'/g,'&#39;').replace(/"/g,'&quot;')}','${groupId}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit message</div>`;
+  if(isMine||isAdmin) html+=`<div class="msg-context-item danger" onclick="window.deleteGroupMsg('${groupId}','${msgId}',this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg> Delete message</div>`;
+  menu.innerHTML=html;
+  document.body.appendChild(menu); _ctxMenu=menu;
+  menu.addEventListener('click', e=>e.stopPropagation());
+};
+
+window.startEditMsg = function(msgId, currentBody, groupId) {
+  closeContextMenu();
+  const bubble = document.querySelector(`[data-msg-id="${msgId}"] .msg-bubble`);
+  if(!bubble) return;
+  const orig = bubble.innerHTML;
+  bubble.innerHTML = `<input class="msg-edit-input" id="editInput_${msgId}" value="${esc(currentBody)}" maxlength="2000"><div class="msg-edit-actions"><button class="msg-edit-save" onclick="window.saveEditMsg('${msgId}','${groupId}',this)">SAVE</button><button class="msg-edit-cancel" onclick="this.closest('.msg-bubble').innerHTML='${orig.replace(/'/g,"&#39;").replace(/\n/g,'')}'">CANCEL</button></div>`;
+  const input=document.getElementById(`editInput_${msgId}`);
+  if(input){ input.focus(); input.setSelectionRange(input.value.length,input.value.length); }
+};
+
+window.saveEditMsg = async function(msgId, groupId, btn) {
+  const input=document.getElementById(`editInput_${msgId}`);
+  const newBody=input?.value?.trim();
+  if(!newBody) return;
+  btn.disabled=true; btn.textContent='SAVING...';
+  try {
+    const token=localStorage.getItem('sq_token');
+    const res=await fetch(`/api/groups?id=${groupId}&editMsg=${msgId}`,{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({body:newBody})});
+    const data=await res.json();
+    if(!data.ok) throw new Error(data.error);
+    const bubble=document.querySelector(`[data-msg-id="${msgId}"] .msg-bubble`);
+    if(bubble) bubble.innerHTML=escHtml(newBody);
+  } catch(e){ toast(e.message,true); btn.disabled=false; btn.textContent='SAVE'; }
+};
+
+window.deleteGroupMsg = async function(groupId, msgId, btn) {
+  closeContextMenu();
+  try {
+    await apiDeleteGroupMessage(groupId, msgId);
+    const bubble=document.querySelector(`[data-msg-id="${msgId}"] .msg-bubble`);
+    if(bubble) bubble.innerHTML='<span class="msg-deleted">🚫 Message deleted</span>';
+  } catch(e){ toast(e.message,true); }
+};
+
+// ── DIRECT MESSAGE CONTEXT ─────────────────────────────
+window.showDirectMsgContext = function(e, msgId, msgBody) {
+  e.preventDefault(); e.stopPropagation();
+  closeContextMenu();
+  const menu=document.createElement('div');
+  menu.className='msg-context-menu';
+  menu.style.left=Math.min(e.clientX,window.innerWidth-180)+'px';
+  menu.style.top=Math.min(e.clientY,window.innerHeight-120)+'px';
+  menu.innerHTML=`<div class="msg-context-item" onclick="window.startDirectEditMsg('${msgId}','${msgBody.replace(/'/g,'&#39;').replace(/"/g,'&quot;')}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit message</div>`;
+  document.body.appendChild(menu); _ctxMenu=menu;
+  menu.addEventListener('click',e=>e.stopPropagation());
+};
+
+window.startDirectEditMsg = function(msgId, currentBody) {
+  closeContextMenu();
+  const bubble=document.querySelector(`[data-msg-id="${msgId}"] .msg-bubble`);
+  if(!bubble) return;
+  const orig=bubble.innerHTML;
+  bubble.innerHTML=`<input class="msg-edit-input" id="editInput_${msgId}" value="${esc(currentBody)}" maxlength="2000"><div class="msg-edit-actions"><button class="msg-edit-save" onclick="window.saveDirectEditMsg('${msgId}',this)">SAVE</button><button class="msg-edit-cancel" onclick="this.closest('.msg-bubble').innerHTML='${orig.replace(/'/g,"&#39;").replace(/\n/g,'')}' ">CANCEL</button></div>`;
+  const input=document.getElementById(`editInput_${msgId}`);
+  if(input){ input.focus(); input.setSelectionRange(input.value.length,input.value.length); }
+};
+
+window.saveDirectEditMsg = async function(msgId, btn) {
+  const input=document.getElementById(`editInput_${msgId}`);
+  const newBody=input?.value?.trim();
+  if(!newBody) return;
+  btn.disabled=true; btn.textContent='SAVING...';
+  try {
+    const token=localStorage.getItem('sq_token');
+    const res=await fetch(`/api/messages?editMsg=${msgId}&teamId=${activeTeamId}`,{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({body:newBody})});
+    const data=await res.json();
+    if(!data.ok) throw new Error(data.error);
+    const bubble=document.querySelector(`[data-msg-id="${msgId}"] .msg-bubble`);
+    if(bubble) bubble.innerHTML=escHtml(newBody);
+  } catch(e){ toast(e.message,true); btn.disabled=false; btn.textContent='SAVE'; }
+};
 
 // ── toast ──────────────────────────────────────────────
 window.toast=(msg,isErr=false)=>{const t=document.getElementById('toast');t.textContent=msg;t.className='toast show'+(isErr?' err':'');setTimeout(()=>t.className='toast',3200)};

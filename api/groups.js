@@ -38,7 +38,7 @@ module.exports = async function handler(req, res) {
   if (!user) return err(res, 'Unauthorised', 401);
 
   const db = getDB();
-  const { id, msgs, msg, add, remove, leave, deleteMsg } = req.query;
+  const { id, msgs, msg, add, remove, leave, deleteMsg, editMsg } = req.query;
 
   // ── GET my groups ────────────────────────────────────
   if (req.method === 'GET' && !id) {
@@ -257,6 +257,25 @@ module.exports = async function handler(req, res) {
       await db.execute({ sql: 'DELETE FROM groups WHERE id = ?', args: [id] });
     }
     return ok(res, { message: 'Left group' });
+  }
+
+  // ── PUT edit message ──────────────────────────────────
+  if (req.method === 'PUT' && id && editMsg) {
+    const { body } = req.body || {};
+    if (!body?.trim()) return err(res, 'body required');
+
+    const msgRow = await db.execute({
+      sql: 'SELECT from_user_id FROM group_messages WHERE id = ? AND group_id = ? AND deleted = 0',
+      args: [editMsg, id],
+    });
+    if (!msgRow.rows.length) return err(res, 'Message not found', 404);
+    if (msgRow.rows[0].from_user_id !== user.sub) return err(res, 'Can only edit your own messages', 403);
+
+    await db.execute({
+      sql: 'UPDATE group_messages SET body = ? WHERE id = ?',
+      args: [body.trim(), editMsg],
+    });
+    return ok(res, { message: 'Message updated', body: body.trim() });
   }
 
   return err(res, 'Method not allowed', 405);
