@@ -224,8 +224,13 @@
   .msg-meta.theirs{text-align:left;align-self:flex-start}
 
   /* IMAGE / FILE */
-  .msg-image{max-width:240px;max-height:240px;border-radius:8px;cursor:pointer;display:block;border:1px solid var(--border);object-fit:cover;transition:opacity .12s}
+  .msg-image{max-width:240px;max-height:240px;border-radius:8px;cursor:zoom-in;display:block;border:1px solid var(--border);object-fit:cover;transition:opacity .12s}
   .msg-image:hover{opacity:.9}
+  /* LIGHTBOX */
+  .lightbox{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.92);display:flex;align-items:center;justify-content:center;cursor:zoom-out;animation:fadeIn .15s ease}
+  .lightbox img{max-width:90vw;max-height:88vh;border-radius:8px;object-fit:contain;box-shadow:0 8px 40px rgba(0,0,0,0.6)}
+  .lightbox-close{position:fixed;top:1.25rem;right:1.25rem;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .12s}
+  .lightbox-close:hover{background:rgba(255,255,255,0.2)}
   .msg-caption{font-size:11px;color:var(--muted);margin-top:4px;font-style:italic}
   .msg-file{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;font-size:12px;color:var(--white);text-decoration:none;transition:border-color .12s;min-width:160px}
   .msg-file:hover{border-color:var(--accent);color:var(--accent)}
@@ -341,7 +346,6 @@
     </div>
     <span class="logo-name">SQU<span>ADRA</span></span>
   </div>
-  <span class="nav-pill">LIVE</span>
   <div class="nav-right">
     <span class="nav-email hidden" id="userEmail"></span>
 
@@ -500,7 +504,7 @@
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
               </button>
               <textarea class="chat-input" id="chatInput" rows="1" placeholder="Type a message... (Enter to send)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();window.sendMsg()}"></textarea>
-              <button class="send-btn" id="sendBtn" onclick="window.sendMsg()">SEND →</button>
+              <button class="send-btn" id="sendBtn" onclick="event.preventDefault();window.sendMsg()">SEND →</button>
             </div>
           </div>
           <!-- DRAFT TAB -->
@@ -1128,7 +1132,7 @@ function groupMsgHTML(m, isAdmin) {
   if (m.deleted) {
     content = '<span class="msg-deleted">🚫 Message deleted</span>';
   } else if (m.type === 'image' && m.file_url) {
-    content = '<img class="msg-image" src="'+m.file_url+'" onclick="window.open(\''+m.file_url+'\',\'_blank\')" alt="Image">'
+    content = '<img class="msg-image" src="'+m.file_url+'" onclick="window.openLightbox(\''+m.file_url+'\')" alt="Image">'
              + (m.body && m.body !== 'Image' ? '<div class="msg-caption">'+esc(m.body)+'</div>' : '');
   } else if (m.type === 'file' && m.file_url) {
     const ext = (m.body || '').split('.').pop().toUpperCase().slice(0,4) || 'FILE';
@@ -1250,7 +1254,10 @@ window.clearFileAttachment = function() {
   document.getElementById('filePreviewBar').style.display='none';
 };
 // override sendMsg to handle both direct and group (with file support)
+let _isSending = false;
 window.sendMsg = async () => {
+  if(_isSending) return;
+  _isSending = true;
   const input=document.getElementById('chatInput');
   const body=input?.value?.trim();
   if(!body && !pendingFileBase64) return;
@@ -1275,7 +1282,7 @@ window.sendMsg = async () => {
       loadTeams();
     }
   }catch(e){toast(e.message,true); input.value=body;}
-  finally{btn.disabled=false; btn.textContent=origText;}
+  finally{btn.disabled=false; btn.textContent=origText; _isSending=false;}
 };
 
 // add member to group
@@ -1729,6 +1736,15 @@ window.saveDirectEditMsg = async function(msgId, btn) {
     const bubble=document.querySelector(`[data-msg-id="${msgId}"] .msg-bubble`);
     if(bubble) bubble.innerHTML=escHtml(newBody);
   } catch(e){ toast(e.message,true); btn.disabled=false; btn.textContent='SAVE'; }
+};
+
+// ── LIGHTBOX ───────────────────────────────────────────
+window.openLightbox = function(url) {
+  const lb = document.createElement('div');
+  lb.className = 'lightbox';
+  lb.innerHTML = '<button class="lightbox-close" onclick="this.parentNode.remove()">✕</button><img src="'+url+'" alt="Image">';
+  lb.addEventListener('click', e=>{ if(e.target===lb) lb.remove(); });
+  document.body.appendChild(lb);
 };
 
 // ── toast ──────────────────────────────────────────────
