@@ -3,8 +3,9 @@
   "outputDirectory": "public",
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1" },
-    { "src": "/app",      "dest": "/index.html" },
-    { "src": "/",         "dest": "/landing.html" },
-    { "src": "/(.*)",     "dest": "/$1" }
+    { "src": "/index.html", "status": 301, "dest": "/app" },
+    { "src": "/app", "dest": "/index.html" },
+    { "src": "/", "dest": "/landing.html" },
+    { "src": "/(.*)", "dest": "/$1" }
   ]
 }
