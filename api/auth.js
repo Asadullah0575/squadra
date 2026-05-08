@@ -35,8 +35,8 @@ module.exports = async function handler(req, res) {
 
     const id = randomUUID();
     await db.execute({ sql: 'INSERT INTO users (id, email, password) VALUES (?, ?, ?)', args: [id, email.toLowerCase(), await hashPassword(password)] });
-    const token = await signToken({ sub: id, email: email.toLowerCase() });
-    return ok(res, { token, user: { id, email: email.toLowerCase() } }, 201);
+    const token = await signToken({ sub: id, email: email.toLowerCase(), isAdmin: false });
+    return ok(res, { token, user: { id, email: email.toLowerCase(), isAdmin: false } }, 201);
   }
 
   // ── SIGN IN ──────────────────────────────────────────
@@ -44,14 +44,15 @@ module.exports = async function handler(req, res) {
     const { email, password } = body;
     if (!email || !password) return err(res, 'Email and password required');
 
-    const result = await db.execute({ sql: 'SELECT id, email, password FROM users WHERE email = ?', args: [email.toLowerCase()] });
+    const result = await db.execute({ sql: 'SELECT id, email, password, is_admin, is_banned FROM users WHERE email = ?', args: [email.toLowerCase()] });
     if (!result.rows.length) return err(res, 'Invalid email or password', 401);
 
     const user = result.rows[0];
+    if (user.is_banned) return err(res, 'This account has been suspended. Contact support.', 403);
     if (!await comparePassword(password, user.password)) return err(res, 'Invalid email or password', 401);
 
-    const token = await signToken({ sub: user.id, email: user.email });
-    return ok(res, { token, user: { id: user.id, email: user.email } });
+    const token = await signToken({ sub: user.id, email: user.email, isAdmin: !!user.is_admin });
+    return ok(res, { token, user: { id: user.id, email: user.email, isAdmin: !!user.is_admin } });
   }
 
   // ── FORGOT PASSWORD ──────────────────────────────────

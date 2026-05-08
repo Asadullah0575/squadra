@@ -363,6 +363,7 @@
 
     <!-- TEAMS BTN -->
     <button class="btn-outline hidden" id="teamsBtn" onclick="showPage('teams')">MY TEAMS</button>
+    <a href="/admin.html" class="btn-outline hidden" id="adminBtn" style="color:#f08080;border-color:rgba(240,80,80,0.25);text-decoration:none">ADMIN</a>
 
     <button class="btn-outline" id="signinBtn" onclick="openAuthModal('signin')">Sign in</button>
     <button class="btn-outline hidden" id="signoutBtn" onclick="handleSignOut()">Sign out</button>
@@ -1479,6 +1480,7 @@ function updateNav(){
   document.getElementById('postBtn').classList.toggle('hidden',!u);
   document.getElementById('bellWrap').classList.toggle('hidden',!u);
   document.getElementById('teamsBtn').classList.toggle('hidden',!u);
+  document.getElementById('adminBtn').classList.toggle('hidden',!u?.isAdmin);
   document.getElementById('userEmail').classList.toggle('hidden',!u);
   if(u) document.getElementById('userEmail').textContent=u.email;
 }

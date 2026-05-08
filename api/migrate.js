@@ -124,6 +124,10 @@ module.exports = async function handler(req, res) {
   await run('idx group_members', 'CREATE INDEX IF NOT EXISTS idx_group_members ON group_members(group_id, user_id)');
   await run('idx group_messages', 'CREATE INDEX IF NOT EXISTS idx_group_messages ON group_messages(group_id, created_at ASC)');
 
+  // Admin flag
+  await run('users.is_admin', 'ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0');
+  await run('users.is_banned', 'ALTER TABLE users ADD COLUMN is_banned INTEGER DEFAULT 0');
+
   await run('backfill to_user_id', `
     UPDATE invites
     SET to_user_id = (
