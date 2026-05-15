@@ -128,6 +128,9 @@ module.exports = async function handler(req, res) {
   await run('users.is_admin', 'ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0');
   await run('users.is_banned', 'ALTER TABLE users ADD COLUMN is_banned INTEGER DEFAULT 0');
 
+  // Grant admin to platform owner
+  await run('grant admin', `UPDATE users SET is_admin = 1 WHERE email = 'adetayomuhsin@gmail.com'`);
+
   await run('backfill to_user_id', `
     UPDATE invites
     SET to_user_id = (
