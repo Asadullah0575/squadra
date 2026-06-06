@@ -861,27 +861,69 @@ window.deleteMyProfile=async(id)=>{
 async function loadBell() {
   if(!window.currentUser) return;
   try {
-    const invites=await apiGetReceivedInvites();
-    const pending=invites.filter(i=>i.status==='pending');
-    const badge=document.getElementById('bellBadge');
-    if(pending.length){badge.textContent=pending.length;badge.classList.remove('hidden');}
+    const [inviteData, notifData] = await Promise.all([
+      apiGetReceivedInvites().catch(()=>[]),
+      fetch('/api/notifications', {headers:{'Authorization':'Bearer '+localStorage.getItem('sq_token')}}).then(r=>r.json()).catch(()=>({notifications:[],unread:0}))
+    ]);
+
+    const invites = Array.isArray(inviteData) ? inviteData : [];
+    const notifs = notifData.notifications || [];
+    const pending = invites.filter(i=>i.status==='pending');
+    const unreadNotifs = notifData.unread || 0;
+    const totalBadge = pending.length + unreadNotifs;
+
+    const badge = document.getElementById('bellBadge');
+    if(totalBadge > 0){badge.textContent=totalBadge;badge.classList.remove('hidden');}
     else badge.classList.add('hidden');
 
-    const list=document.getElementById('bellList');
-    if(!invites.length){list.innerHTML='<div class="bell-empty">No invites yet</div>';return;}
-    list.innerHTML=invites.map(inv=>`
-      <div class="invite-notif" id="notif-${inv.id}">
-        <div class="notif-name">${inv.from_name||'Unknown builder'}</div>
-        <div class="notif-role">${inv.from_role||''}</div>
-        ${inv.status==='pending'
-          ?`<div class="notif-actions">
-              <button class="accept-btn" onclick="respondInvite('${inv.id}','accept')">ACCEPT</button>
-              <button class="decline-btn" onclick="respondInvite('${inv.id}','decline')">DECLINE</button>
-            </div>`
-          :`<span class="notif-status ${inv.status}">${inv.status.toUpperCase()}</span>`}
-      </div>`).join('');
+    const list = document.getElementById('bellList');
+    let html = '';
+
+    // AI match notifications
+    if(notifs.length) {
+      html += '<div style="padding:8px 14px;font-family:\'IBM Plex Mono\',monospace;font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--faint);border-bottom:1px solid var(--border)">AI MATCHES</div>';
+      html += notifs.slice(0,5).map(n=>`
+        <div class="invite-notif ${n.read?'':''}\" style="${n.read?'opacity:.6':''}" onclick="markNotifRead('${n.id}','${n.link||''}')">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+            <span style="font-size:13px">🤖</span>
+            <div class="notif-name" style="font-size:12px">${esc(n.title)}</div>
+            ${!n.read?'<span style="width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0"></span>':''}
+          </div>
+          <div class="notif-role" style="font-size:11px;line-height:1.4">${esc((n.body||'').slice(0,80))}...</div>
+        </div>`).join('');
+    }
+
+    // Invite notifications
+    if(invites.length) {
+      html += '<div style="padding:8px 14px;font-family:\'IBM Plex Mono\',monospace;font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--faint);border-bottom:1px solid var(--border);border-top:1px solid var(--border)">INVITES</div>';
+      html += invites.map(inv=>`
+        <div class="invite-notif" id="notif-${inv.id}">
+          <div class="notif-name">${esc(inv.from_name||'Unknown builder')}</div>
+          <div class="notif-role">${esc(inv.from_role||'')}</div>
+          ${inv.status==='pending'
+            ?`<div class="notif-actions">
+                <button class="accept-btn" onclick="respondInvite('${inv.id}','accept')">ACCEPT</button>
+                <button class="decline-btn" onclick="respondInvite('${inv.id}','decline')">DECLINE</button>
+              </div>`
+            :`<span class="notif-status ${inv.status}">${inv.status.toUpperCase()}</span>`}
+        </div>`).join('');
+    }
+
+    if(!html) html = '<div class="bell-empty">No notifications yet</div>';
+    list.innerHTML = html;
+
+    // mark all notifs read when bell opened
+    if(unreadNotifs > 0) {
+      fetch('/api/notifications?all=1', {method:'PUT', headers:{'Authorization':'Bearer '+localStorage.getItem('sq_token')}}).catch(()=>{});
+    }
   } catch(e){}
 }
+
+window.markNotifRead = (id, link) => {
+  fetch(`/api/notifications?id=${id}`, {method:'PUT', headers:{'Authorization':'Bearer '+localStorage.getItem('sq_token')}}).catch(()=>{});
+  if(link) window.location.href = link;
+  closeBell();
+};
 
 window.toggleBell=()=>{
   const dd=document.getElementById('bellDropdown');

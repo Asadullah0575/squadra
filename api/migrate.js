@@ -128,6 +128,36 @@ module.exports = async function handler(req, res) {
   await run('users.is_admin', 'ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0');
   await run('users.is_banned', 'ALTER TABLE users ADD COLUMN is_banned INTEGER DEFAULT 0');
 
+  // Agent matching tables
+  await run('agent_matches table', `
+    CREATE TABLE IF NOT EXISTS agent_matches (
+      id           TEXT PRIMARY KEY,
+      profile_id   TEXT NOT NULL,
+      matched_id   TEXT NOT NULL,
+      score        INTEGER DEFAULT 0,
+      reasoning    TEXT,
+      notified     INTEGER DEFAULT 0,
+      created_at   TEXT DEFAULT (datetime('now')),
+      UNIQUE(profile_id, matched_id)
+    )
+  `);
+
+  await run('notifications table', `
+    CREATE TABLE IF NOT EXISTS notifications (
+      id         TEXT PRIMARY KEY,
+      user_id    TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      type       TEXT NOT NULL,
+      title      TEXT NOT NULL,
+      body       TEXT NOT NULL,
+      link       TEXT,
+      read       INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+
+  await run('idx notifications user', 'CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, read, created_at DESC)');
+  await run('idx agent_matches profile', 'CREATE INDEX IF NOT EXISTS idx_agent_matches_profile ON agent_matches(profile_id)');
+
   // Grant admin to platform owner
   await run('grant admin', `UPDATE users SET is_admin = 1 WHERE email = 'adetayomuhsin@gmail.com'`);
 

@@ -41,7 +41,18 @@ module.exports = async function handler(req, res) {
     });
 
     const row = await db.execute({ sql: 'SELECT * FROM profiles WHERE id = ?', args: [id] });
-    return ok(res, { profile: parse(row.rows[0]) }, 201);
+    const newProfile = parse(row.rows[0]);
+
+    // Fire AI matching agent asynchronously (don't wait)
+    try {
+      const appUrl = process.env.APP_URL || 'https://squadra-ruby.vercel.app';
+      fetch(appUrl + '/api/agent?action=match&profileId=' + id, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      }).catch(e => console.error('Agent trigger error:', e.message));
+    } catch(e) {}
+
+    return ok(res, { profile: newProfile }, 201);
   }
 
   // ── PUT edit ─────────────────────────────────────────

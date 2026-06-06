@@ -1,6 +1,12 @@
 {
   "version": 2,
   "outputDirectory": "public",
+  "crons": [
+    {
+      "path": "/api/agent?action=cron",
+      "schedule": "0 * * * *"
+    }
+  ],
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/index.html", "status": 301, "dest": "/app" },
